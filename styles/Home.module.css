@@ -1,0 +1,290 @@
+.container {
+
+  min-height: 100vh;
+  padding: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading {
+  filter: blur(5px);
+
+}
+
+.loadingdiv {
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  /* coloca el contenedor en la parte superior de la página */
+  left: 0;
+  /* coloca el contenedor en la parte izquierda de la página */
+  width: 100%;
+  /* hace que el contenedor ocupe todo el ancho de la página */
+  height: 100%;
+  /* hace que el contenedor ocupe todo el alto de la página */
+  z-index: 1;
+}
+
+.containerlogin {
+
+  position: absolute;
+  top: 0;
+  /* coloca el contenedor en la parte superior de la página */
+  left: 0;
+  /* coloca el contenedor en la parte izquierda de la página */
+  width: 100%;
+  /* hace que el contenedor ocupe todo el ancho de la página */
+  height: 100%;
+  /* hace que el contenedor ocupe todo el alto de la página */
+  z-index: -1;
+  /* coloca el contenedor debajo de las demás etiquetas */
+  filter: blur(5px);
+  /* aplica un desenfoque de 5px al contenedor */
+}
+
+.containerlogin img {
+  width: 100%;
+  /* hace que la imagen ocupe todo el ancho del contenedor */
+  height: 100%;
+  /* hace que la imagen ocupe todo el alto del contenedor */
+  object-fit: cover;
+  /* cubre todo el espacio disponible del contenedor */
+}
+
+.title a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.title a:hover,
+.title a:focus,
+.title a:active {
+  text-decoration: underline;
+}
+
+.title {
+  margin: 0 0 1rem;
+  line-height: 1.15;
+  font-size: 3.6rem;
+  color: #0070f3;
+}
+
+.title {
+  text-align: center;
+}
+
+.title,
+.description {
+  text-align: center;
+}
+
+
+.description {
+  line-height: 1.5;
+  font-size: 1.5rem;
+}
+
+.contenedor {
+  margin: 1rem;
+  flex-basis: 45%;
+  padding: 6rem;
+  text-align: center;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.logotipo {
+  display: flex;
+  float: left;
+  margin-right: 1250px;
+  margin-top: 15px;
+}
+
+.grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  max-width: 800px;
+  margin-top: 3rem;
+}
+
+.card {
+  margin: 1.5rem;
+  flex-basis: 35%;
+  padding: 2.75rem;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  background-color: rgba(255, 255, 255, 0.75);
+  /* establece el color de fondo como blanco con una transparencia del 50% */
+
+}
+
+.button {
+  /* Define el ancho y el alto del botón */
+  width: 200px;
+  height: 40px;
+
+  /* Define el color y la fuente del texto */
+  color: white;
+  font-family: sans-serif;
+
+  /* Define el color del fondo y del borde */
+  background-color: rgb(216, 140, 26);
+  border: none;
+
+  /* Define el borde redondeado y la sombra */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgb(236, 235, 235);
+
+  /* Define el estilo del cursor y el margen */
+  cursor: pointer;
+  margin: 10px;
+
+  /* Define la transición al hacer hover */
+  transition: background-color 0.2s;
+
+}
+
+/* Define el estilo al hacer hover */
+.button:hover {
+  background-color: rgb(221, 160, 46);
+}
+
+.errorBox {
+  background-color: #ffbaba;
+  /* color rojo claro para el fondo */
+  border: 1px solid #ff0000;
+  /* borde rojo */
+  border-radius: 5px;
+  /* esquinas redondeadas */
+  color: #ff0000;
+  /* texto rojo */
+  font-size: 14px;
+  /* tamaño de fuente */
+  padding: 16px;
+  margin: -5px;
+  /* espacio interno */
+  /* oculta el cuadro de error inicialmente */
+}
+
+.errorBox.visible {
+  /* muestra el cuadro de error con una animación de aparición */
+  animation: fadeIn 0.5s;
+}
+
+.errorBox.hidden {
+  /* oculta el cuadro de error con una animación de desaparición */
+  animation: fadeOut 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.logocard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input {
+
+  width: 200px;
+  height: 40px;
+
+
+  color: black;
+  font-family: sans-serif;
+
+
+  background-color: white;
+  border: 1;
+
+
+  cursor: pointer;
+  margin: 10px;
+
+  transition: background-color 0.2s;
+
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.input:hover {
+  background-color: lightgray;
+}
+
+.inputtext {
+  /* Define el color y la fuente del texto */
+  color: black;
+  font-family: sans-serif;
+
+  /* Define el tamaño y el estilo del texto */
+  font-size: 16px;
+  font-style: italic;
+}
+
+
+.card:hover,
+.card:focus,
+.card:active {
+  color: rgb(0, 0, 255);
+  border-color: rgb(115, 115, 225);
+}
+
+.card h3 {
+  margin: 0 0 3rem 0;
+  font-size: 1.4rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.logo {
+  height: 1em;
+}
+
+.logocontainer {
+  background-color: rgba(255, 255, 255, 0.75);
+  ;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    width: 100%;
+    flex-direction: column;
+  }
+}
