@@ -6,7 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "aws-amplify": "^5.0.7",
+    "axios": "^1.2.1",
     "next": "latest",
     "nprogress": "^0.2.0",
     "react": "18.2.0",

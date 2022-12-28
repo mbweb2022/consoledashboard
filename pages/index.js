@@ -2,11 +2,10 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/navigation';
 import * as React from "react";
-import {Auth} from "aws-amplify";
-import awsconfig from "../src/aws-exports";
+
+
 export default function Home() {
   if (typeof window != 'undefined') {
-    Auth.configure(awsconfig);
   
     const router = useRouter();
     React.useEffect(() => {

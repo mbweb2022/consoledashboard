@@ -1,9 +1,8 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css';
 import * as React from "react";
-import { Auth } from "aws-amplify";
 import { useRouter } from 'next/navigation';
-
+import axios from "axios"
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -27,6 +26,73 @@ export default function Home() {
 
   const router = useRouter();
 
+  const login = async ()=>{
+    if (!isLoading) {
+      setLoading(true)
+      if (usuario == "" || password == "") {
+        setErrorMessage("Usuario o contraseña no pueden estar vacíos.")
+        setIsVisible(true)
+      }
+      try {
+        // Enviamos la solicitud POST a Google
+        const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+          type: "login",
+          username: usuario,
+          password: password,
+        });
+
+        // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+        console.log(response.data.code.message);
+        if (response.data.code.message == "User does not exist.") {
+          setErrorMessage("El usuario indicado no existe.")
+          setIsVisible(true)
+          setLoading(false)
+          return;
+        } else if (response.data.code.message == "Incorrect username or password.") {
+          setErrorMessage("Usuario o contraseña incorrectos.")
+          setIsVisible(true)
+          setLoading(false)
+          return;
+        } else if (response.data.code.message == "User not allowed to sign in.") {
+          setErrorMessage("No tienes permitido iniciar sesión")
+          setIsVisible(true)
+          setLoading(false)
+          return;
+        }else if(response.data.code.token){
+          router.push('/dashboard')
+          localStorage.setItem('ssTk-mb', response.data.code.token);
+          setLoading(false)
+          return;
+        }else{
+          setErrorMessage("Hubo un error temporal, por favor, inténtalo más tarde.")
+          setIsVisible(true)
+          setLoading(false)
+        }
+      } catch (error) {
+        // Si hay algún error, lo imprimimos en la consola
+        if (error.messsage) {
+          setErrorMessage("Hubo un error temporal, por favor, inténtalo más tarde.")
+          setIsVisible(true)
+          setLoading(false)
+        }
+
+      }
+      /*await Auth.signIn(usuario, password)
+        .then((user) => {
+          router.push('/dashboard')
+        })
+        .catch((err) => {
+          console.log("Se ha cacheado un error: ", err);
+          console.log("JSON: " + JSON.stringify(err))
+          if (err.code == "NotAuthorizedException") {
+            setErrorMessage("Usuario o contraseña incorrectos.")
+            setIsVisible(true)
+          }
+        });
+        */
+      setLoading(false);
+    }
+  }
   React.useEffect(() => {
     if (isVisible) {
       setTimeout(() => {
@@ -34,13 +100,33 @@ export default function Home() {
         setTimeout(() => {
           setErrorMessage("");
         }, 450)
-      }, 5000); // oculta el cuadro de error después de 5 segundos
+      }, 5000);
     }
   }, [isVisible]);
 
   React.useEffect(() => {
-    setLoading(true)
+    //setLoading(true)
     setTimeout(async () => {
+      const storedSessionToken = localStorage.getItem('ssTk-mb');
+      if(storedSessionToken){
+        console.log("STORED TOKEN")
+        console.log(storedSessionToken)
+        setLoading(true)
+        const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+          type: "autologin",
+          token: storedSessionToken
+        });
+        setLoading(false)
+        console.log("HUBO ERROR? XD")
+        console.log(response.data.error)
+        console.log(response.data.code)
+        console.log(JSON.stringify(response.data.code))
+        if(!response.data.error){
+          router.push('/dashboard')
+        }
+        
+      }
+      /*
       await Auth.currentSession()
         .then(data => {
           router.push('/dashboard')
@@ -51,6 +137,7 @@ export default function Home() {
           console.log(err);
         });
       setLoading(false)
+      */
     }, 5500)
   }, [])
   return (
@@ -90,27 +177,7 @@ export default function Home() {
               setPassword(event.target.value);
             }} disabled={isLoading} style={{ marginBottom: 10 }} className={styles.input} type="password" id="password" name="password" />
 
-            <button disabled={isLoading} className={styles.button} type="submit" onClick={async () => {
-              setLoading(true)
-              if (usuario == "" || password == "") {
-                setErrorMessage("Usuario o contraseña no pueden estar vacíos.")
-                setIsVisible(true)
-              }
-              await Auth.signIn(usuario, password)
-                .then((user) => {
-                  router.push('/dashboard')
-                })
-                .catch((err) => {
-                  console.log("Se ha cacheado un error: ", err);
-                  console.log("JSON: " + JSON.stringify(err))
-                  if (err.code == "NotAuthorizedException") {
-                    setErrorMessage("Usuario o contraseña incorrectos.")
-                    setIsVisible(true)
-                  }
-                });
-              setLoading(false);
-
-            }}>Ingresar &rarr;</button>
+            <button disabled={isLoading} className={styles.button} type="submit" onClick={login}>Ingresar &rarr;</button>
 
 
           </div>
