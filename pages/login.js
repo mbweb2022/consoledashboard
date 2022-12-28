@@ -34,7 +34,6 @@ export default function Home() {
         setIsVisible(true)
       }
       try {
-        // Enviamos la solicitud POST a Google
         const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "login",
           username: usuario,
