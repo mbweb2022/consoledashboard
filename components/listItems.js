@@ -20,7 +20,9 @@ export const mainListItems = () => {
                     <ListItemIcon>
                         <DashboardIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Dashboard"/>
+                    <ListItemText primary="Dashboard" onClick={() => {
+                        router.push("/dashboard")
+                    }} />
                 </ListItemButton> :
                 <ListItemButton>
                     <ListItemIcon>
@@ -36,7 +38,9 @@ export const mainListItems = () => {
                     <ListItemIcon>
                         <ShoppingCartIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Transacciones"/>
+                    <ListItemText primary="Transacciones" onClick={() => {
+                        //router.push("/dashboard")
+                    }} />
                 </ListItemButton> :
                 <ListItemButton>
                     <ListItemIcon>
@@ -78,37 +82,41 @@ export const mainListItems = () => {
     )
 }
 
-export const secondaryListItems = (
-    <React.Fragment>
-        <ListSubheader component="div" inset>
-            Más funciones
-        </ListSubheader>
-        {usePathname() == "/corresponsales" ?
-            <ListItemButton style={{ backgroundColor: "lightgray" }}>
-                <ListItemIcon>
-                    <AssignmentIcon />
-                </ListItemIcon>
-                <ListItemText primary="Corresponsales" />
-            </ListItemButton> :
+export const secondaryListItems = () => {
+    const router = useRouter();
+    return (
+
+        <React.Fragment>
+            <ListSubheader component="div" inset>
+                Más funciones
+            </ListSubheader>
+            {usePathname() == "/corresponsales" ?
+                <ListItemButton style={{ backgroundColor: "lightgray" }}>
+                    <ListItemIcon>
+                        <AssignmentIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Corresponsales" />
+                </ListItemButton> :
+                <ListItemButton>
+                    <ListItemIcon>
+                        <AssignmentIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Corresponsales" onClick={() => {
+                        router.push("/corresponsales")
+                    }} />
+                </ListItemButton>}
             <ListItemButton>
                 <ListItemIcon>
                     <AssignmentIcon />
                 </ListItemIcon>
-                <ListItemText primary="Corresponsales" onClick={() => {
-                    router.push("/corresponsales")
-                }} />
-            </ListItemButton>}
-        <ListItemButton>
-            <ListItemIcon>
-                <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Txes Corresponsal" />
-        </ListItemButton>
-        <ListItemButton>
-            <ListItemIcon>
-                <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Pricing" />
-        </ListItemButton>
-    </React.Fragment>
-);
+                <ListItemText primary="Txes Corresponsal" />
+            </ListItemButton>
+            <ListItemButton>
+                <ListItemIcon>
+                    <AssignmentIcon />
+                </ListItemIcon>
+                <ListItemText primary="Pricing" />
+            </ListItemButton>
+        </React.Fragment>
+    );
+}

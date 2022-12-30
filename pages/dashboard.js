@@ -18,21 +18,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../components/listItems';
-import Chart from '../components/Chart';
 import Deposits from '../components/Deposits';
 import Orders from '../components/Orders';
-export const getServerSideProps = async ({ res }) => {
-  if (typeof window === 'undefined') {
-    res.writeHead(301, {
-      Location: '/'
-    });
-    res.end();
-  }
-
-  return {
-    props: {}
-  };
-};
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -155,7 +142,7 @@ function DashboardContent() {
           <List component="nav">
             {mainListItems()}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {secondaryListItems()}
           </List>
         </Drawer>
         <Box
