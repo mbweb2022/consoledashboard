@@ -23,6 +23,7 @@ import Orders from "../components/Orders";
 import axios from "axios";
 import ArchivosMedicalTable from "../components/ArchivosMedicalTable"
 import BankTable from "../components/BankTable";
+import got from "got";
 function Copyright(props) {
   return (
     <Typography
@@ -107,13 +108,14 @@ function DashboardContent() {
       lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setListaArchivos(lista);
 
-      const txsCB = await axios.get("https://api.checkbook.io/v3/check", {
+      
+      const txs = await got("https://api.checkbook.io/v3/check", {
+        method: "GET",
         headers: {
             Authorization: "2136ae8d6b62491989656456076cc43e:ucwYWVTyFg1ppLXhQmUK8vEfEFuAb5",
-            'Access-Control-Allow-Origin': '*',
         }
       })
-      console.log(txsCB.data)
+      console.log(txs.body)
     };
     consulta();
   }, []);
