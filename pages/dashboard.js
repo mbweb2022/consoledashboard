@@ -20,6 +20,19 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../components/listItems';
 import Deposits from '../components/Deposits';
 import Orders from '../components/Orders';
+export const getServerSideProps = async ({ res }) => {
+  if (typeof window === 'undefined') {
+    res.writeHead(301, {
+      Location: '/'
+    });
+    res.end();
+  }
+
+  return {
+    props: {}
+  };
+};
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>

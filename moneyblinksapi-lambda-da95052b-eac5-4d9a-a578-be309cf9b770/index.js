@@ -1,7 +1,7 @@
 
 const AWS = require('aws-sdk');
 exports.handler = async (event) => {
-  const env = false
+  const env = true
   allowedUsers = [
     "jcmedvicecu",
     "jcmvusa2022",
