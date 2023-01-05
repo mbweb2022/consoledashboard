@@ -23,7 +23,7 @@ import Orders from "../components/Orders";
 import axios from "axios";
 import ArchivosMedicalTable from "../components/ArchivosMedicalTable"
 import BankTable from "../components/BankTable";
-import got from "got";
+import ACHTable from "../components/ACHTable";
 function Copyright(props) {
   return (
     <Typography
@@ -93,6 +93,7 @@ const mdTheme = createTheme();
 function DashboardContent() {
   const [listaArchivos, setListaArchivos] = React.useState([]);
   const [open, setOpen] = React.useState(true);
+  const [ACHList, setACHList] = React.useState([])
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -108,14 +109,14 @@ function DashboardContent() {
       lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setListaArchivos(lista);
 
-      
-      const txs = await got("https://api.checkbook.io/v3/check", {
-        method: "GET",
-        headers: {
-            Authorization: "2136ae8d6b62491989656456076cc43e:ucwYWVTyFg1ppLXhQmUK8vEfEFuAb5",
+      const txs = await axios.post(
+        "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+        {
+          type: "getTXS",
         }
-      })
-      console.log(txs.body)
+      );
+      console.log("DATA ENCONTRADA")
+      setACHList(txs.data.code)
     };
     consulta();
   }, []);
@@ -222,10 +223,8 @@ function DashboardContent() {
                     height: 500,
                   }}
                 >
-                  <ArchivosMedicalTable
-                    archivos={listaArchivos.filter((a) =>
-                      a.name.includes("MEDICAL")
-                    )}
+                  <ACHTable
+                    lista={ACHList}
                   />
                 </Paper>
               </Grid>
