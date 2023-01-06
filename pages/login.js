@@ -26,7 +26,7 @@ export default function Home() {
 
   const router = useRouter();
 
-  const login = async ()=>{
+  const login = async () => {
     if (!isLoading) {
       setLoading(true)
       if (usuario == "" || password == "") {
@@ -57,12 +57,12 @@ export default function Home() {
           setIsVisible(true)
           setLoading(false)
           return;
-        }else if(response.data.code.token){
+        } else if (response.data.code.token) {
           router.push('/dashboard')
           localStorage.setItem('ssTk-mb', response.data.code.token);
           setLoading(false)
           return;
-        }else{
+        } else {
           setErrorMessage("Hubo un error temporal, por favor, inténtalo más tarde.")
           setIsVisible(true)
           setLoading(false)
@@ -107,7 +107,7 @@ export default function Home() {
     //setLoading(true)
     setTimeout(async () => {
       const storedSessionToken = localStorage.getItem('ssTk-mb');
-      if(storedSessionToken){
+      if (storedSessionToken) {
         console.log("STORED TOKEN")
         console.log(storedSessionToken)
         setLoading(true)
@@ -120,10 +120,10 @@ export default function Home() {
         console.log(response.data.error)
         console.log(response.data.code)
         console.log(JSON.stringify(response.data.code))
-        if(!response.data.error){
+        if (!response.data.error) {
           router.push('/dashboard')
         }
-        
+
       }
       /*
       await Auth.currentSession()
@@ -167,12 +167,24 @@ export default function Home() {
             </div>
             <h3 style={{ paddingTop: 10, marginBottom: 25 }}>Iniciar sesión</h3>
 
-            <label for="username"><span className={styles.inputtext} style={{ fontSize: 18 }}>Nombre de usuario</span></label>
+            <label onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                if (usuario != "" && password != "") {
+                  login()
+                }
+              }
+            }} for="username"><span className={styles.inputtext} style={{ fontSize: 18 }}>Nombre de usuario</span></label>
             <input value={usuario} onChange={(event) => {
               setUsuario(event.target.value);
             }} disabled={isLoading} type="email" className={styles.input} id="username" name="username" />
             <label for="password"><span className={styles.inputtext} style={{ fontSize: 18 }} >Contraseña</span></label>
-            <input value={password} onChange={(event) => {
+            <input onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                if (usuario != "" && password != "") {
+                  login()
+                }
+              }
+            }} value={password} onChange={(event) => {
               setPassword(event.target.value);
             }} disabled={isLoading} style={{ marginBottom: 10 }} className={styles.input} type="password" id="password" name="password" />
 

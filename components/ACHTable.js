@@ -25,16 +25,17 @@ import VerifiedUserTwoToneIcon from "@mui/icons-material/VerifiedUserTwoTone";
 import GppBadTwoToneIcon from "@mui/icons-material/GppBadTwoTone";
 import moment from "moment";
 function Row(props) {
-  const { row } = props;
+  const { row, usuario } = props;
   return (
     <React.Fragment>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell align="left">
           {row.recipient == "jcmedinav@moneyblinks.com" ? "COBRO" : "ENVÍO"}
         </TableCell>
+        <TableCell align="left">{usuario ? usuario.nickname.S : (row.recipient == "jcmedinav@moneyblinks.com" ? row.sender : row.recipient)}</TableCell>
         <TableCell align="left">{row.description}</TableCell>
         <TableCell align="left">{row.date}</TableCell>
-        <TableCell align="right">{row.amount}</TableCell>
+        <TableCell align="right">{row.recipient == "jcmedinav@moneyblinks.com" ? "+" : "-"}{parseFloat(row.amount).toFixed(2)}</TableCell>
         <TableCell align="right">{row.status}</TableCell>
       </TableRow>
     </React.Fragment>
@@ -42,7 +43,7 @@ function Row(props) {
 }
 
 export default function ACHTable(props) {
-  const { lista } = props;
+  const { lista, usuarios } = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const handleChangePage = (event, newPage) => {
@@ -64,6 +65,7 @@ export default function ACHTable(props) {
           <TableHead>
             <TableRow>
               <TableCell>Tipo</TableCell>
+              <TableCell>Efectuador</TableCell>
               <TableCell align="left">Descripción</TableCell>
               <TableCell align="left">Fecha</TableCell>
               <TableCell align="left">Valor</TableCell>
@@ -75,7 +77,7 @@ export default function ACHTable(props) {
               rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  return <Row key={row.id} row={row} />;
+                  return <Row key={row.id} row={row} usuario={usuarios.filter(element => element.email.S == (row.recipient == "jcmedinav@moneyblinks.com" ? row.sender : row.recipient))[0]} />;
                 })
             ) : (
               <p style={{ paddingLeft: 25 }}>

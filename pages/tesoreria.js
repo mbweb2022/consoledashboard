@@ -24,6 +24,7 @@ import axios from "axios";
 import ArchivosMedicalTable from "../components/ArchivosMedicalTable"
 import BankTable from "../components/BankTable";
 import ACHTable from "../components/ACHTable";
+import styles from '../styles/Home.module.css';
 function Copyright(props) {
   return (
     <Typography
@@ -94,11 +95,21 @@ function DashboardContent() {
   const [listaArchivos, setListaArchivos] = React.useState([]);
   const [open, setOpen] = React.useState(true);
   const [ACHList, setACHList] = React.useState([])
+  const [usuarios, setUsuarios] = React.useState([])
+  const [isLoading, setLoading] = React.useState(false)
   const toggleDrawer = () => {
     setOpen(!open);
   };
   React.useEffect(() => {
     const consulta = async () => {
+      setLoading(true)
+      const responseUsers = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
+
+      // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+      setUsuarios(responseUsers.data.code.information)
       const response = await axios.post(
         "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
         {
@@ -115,8 +126,8 @@ function DashboardContent() {
           type: "getTXS",
         }
       );
-      console.log("DATA ENCONTRADA")
       setACHList(txs.data.code)
+      setLoading(false)
     };
     consulta();
   }, []);
@@ -192,6 +203,14 @@ function DashboardContent() {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            {isLoading ? (
+              <div className={styles.loadingdiv}>
+                <img src="/cargando.svg" width={234} />
+                <span style={{ fontSize: 18, fontFamily: "sans-serif" }}>
+                  Cargando, espera un momento...
+                </span>
+              </div>
+            ) : null}
             <Grid container spacing={3}>
               {/* Chart */}
               <Grid item xs={12} md={8} lg={12}>
@@ -225,28 +244,7 @@ function DashboardContent() {
                 >
                   <ACHTable
                     lista={ACHList}
-                  />
-                </Paper>
-              </Grid>
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 500,
-                  }}
-                >
-                  <ArchivosMedicalTable
-                    archivos={listaArchivos.filter((a) =>
-                      a.name.includes("SAPT")
-                    )}
+                    usuarios={usuarios}
                   />
                 </Paper>
               </Grid>

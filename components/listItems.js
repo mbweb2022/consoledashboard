@@ -27,15 +27,14 @@ export const mainListItems = () => {
           />
         </ListItemButton>
       ) : (
-        <ListItemButton>
+        <ListItemButton onClick={() => {
+          router.push("/dashboard");
+        }}>
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
           <ListItemText
             primary="Dashboard"
-            onClick={() => {
-              router.push("/dashboard");
-            }}
           />
         </ListItemButton>
       )}
@@ -74,15 +73,14 @@ export const mainListItems = () => {
           <ListItemText primary="Usuarios" />
         </ListItemButton>
       ) : (
-        <ListItemButton>
+        <ListItemButton onClick={() => {
+          router.push("/usuarios");
+        }}>
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
           <ListItemText
             primary="Usuarios"
-            onClick={() => {
-              router.push("/usuarios");
-            }}
           />
         </ListItemButton>
       )}
@@ -94,13 +92,13 @@ export const mainListItems = () => {
           <ListItemText primary="Tesorería" />
         </ListItemButton>
       ) : (
-        <ListItemButton>
+        <ListItemButton onClick={() => {
+          router.push("/tesoreria");
+        }}>
           <ListItemIcon>
             <BarChartIcon />
           </ListItemIcon>
-          <ListItemText primary="Tesorería" onClick={()=>{
-            router.push("/tesoreria");
-          }} />
+          <ListItemText primary="Tesorería" />
         </ListItemButton>
       )}
       {usePathname() == "/archivos" ? (
@@ -111,15 +109,15 @@ export const mainListItems = () => {
           <ListItemText primary="Archivos" />
         </ListItemButton>
       ) : (
-        <ListItemButton>
+        <ListItemButton
+          onClick={() => {
+            router.push("/archivos");
+          }}>
           <ListItemIcon>
             <LayersIcon />
           </ListItemIcon>
           <ListItemText
             primary="Archivos"
-            onClick={() => {
-              router.push("/archivos");
-            }}
           />
         </ListItemButton>
       )}
@@ -142,15 +140,14 @@ export const secondaryListItems = () => {
           <ListItemText primary="Corresponsales" />
         </ListItemButton>
       ) : (
-        <ListItemButton>
+        <ListItemButton onClick={() => {
+          router.push("/corresponsales");
+        }}>
           <ListItemIcon>
             <AssignmentIcon />
           </ListItemIcon>
           <ListItemText
             primary="Corresponsales"
-            onClick={() => {
-              router.push("/corresponsales");
-            }}
           />
         </ListItemButton>
       )}
@@ -160,12 +157,22 @@ export const secondaryListItems = () => {
         </ListItemIcon>
         <ListItemText primary="Txes Corresponsal" />
       </ListItemButton>
-      <ListItemButton>
+      {usePathname() == "/pricing" ? (<ListItemButton style={{ backgroundColor: "lightgray" }}>
         <ListItemIcon>
           <AssignmentIcon />
         </ListItemIcon>
         <ListItemText primary="Pricing" />
-      </ListItemButton>
+      </ListItemButton>) : (
+        <ListItemButton onClick={() => {
+          router.push("/pricing");
+        }}>
+          <ListItemIcon>
+            <AssignmentIcon />
+          </ListItemIcon>
+          <ListItemText primary="Pricing" />
+        </ListItemButton>
+      )}
+
     </React.Fragment>
   );
 };
