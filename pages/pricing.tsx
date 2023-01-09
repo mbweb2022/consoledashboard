@@ -1,32 +1,35 @@
-import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
-import Box from "@mui/material/Box";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Link from "@mui/material/Link";
-import MenuIcon from "@mui/icons-material/Menu";
+import { DriveFileRenameOutline } from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems, secondaryListItems } from "../components/listItems";
-import ArchivosMedicalTable from "../components/ArchivosMedicalTable";
-import styles from '../styles/Home.module.css';
+import { Fab, TextField } from "@mui/material";
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import MuiAppBar from "@mui/material/AppBar";
+import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
+import MuiDrawer from "@mui/material/Drawer";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
+import List from "@mui/material/List";
+import Paper from "@mui/material/Paper";
+import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 import axios from "axios";
-import { DriveFileRenameOutline } from "@mui/icons-material";
+import * as React from "react";
+import { mainListItems, secondaryListItems } from "../components/listItems";
+import styles from '../styles/Home.module.css';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import PendingTwoToneIcon from "@mui/icons-material/PendingTwoTone";
+import BlinksTable from "../components/BlinksTable"
+import BlinksCorrTable from "../components/BlinksCorrTable"
 function Copyright(props) {
     return (
         <Typography
@@ -94,33 +97,61 @@ const Drawer = styled(MuiDrawer, {
 const mdTheme = createTheme();
 
 function DashboardContent() {
-    const [listaArchivos, setListaArchivos] = React.useState([]);
     const [open, setOpen] = React.useState(true);
     const [isLoading, setLoading] = React.useState(false);
     const [expanded, setExpanded] = React.useState<string | false>(false);
     const [corresponsalSettings, setCorresponsalSettings] = React.useState([])
+    const [comissionCor, setComissionCor] = React.useState("0.00")
+    const [comissionCorText, setComissionCorText] = React.useState("0.00")
+    const [loadingButton, setLoadingButton] = React.useState(false)
+    const [blinkCost, setBlinkCost] = React.useState([])
+    const [blinkCostCorr, setBlinkCostCorr] = React.useState([])
     const handleChange =
         (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? panel : false);
         };
     const toggleDrawer = () => {
         setOpen(!open);
-    };''
+    }; ''
     React.useEffect(() => {
         const consulta = async () => {
             setLoading(true);
-            const corresponsalSettings = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+            const corSet = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
                 type: "scan",
                 tableName: "MBCorresponsalSettings-oqkpjuho2ngvbonruy7shv26zu-pre",
             });
 
             // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-            setCorresponsalSettings(corresponsalSettings.data.code.information)
-            console.log(corresponsalSettings.data.code.information)
+            setCorresponsalSettings(corSet.data.code.information)
+            setComissionCor("" + parseFloat(corSet.data.code.information.filter(item => item.type && item.type.S == "TX_COMMISSION")[0].value.N).toFixed(2))
+            setComissionCorText("" + parseFloat(corSet.data.code.information.filter(item => item.type && item.type.S == "TX_COMMISSION")[0].value.N).toFixed(2))
+
+
+            console.log(corSet.data.code.information)
+            const bCost = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+                type: "scan",
+                tableName: "MBBlinkCostByPrice-oqkpjuho2ngvbonruy7shv26zu-pre",
+            });
+            console.log(bCost.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
+            setBlinkCost(bCost.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
+
+
+
+
+            const bCostCorr = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+                type: "scan",
+                tableName: "MBCorresponsalChargues-oqkpjuho2ngvbonruy7shv26zu-pre",
+            });
+            console.log(bCostCorr.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
+            setBlinkCostCorr(bCostCorr.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
             setLoading(false);
         };
         consulta();
     }, []);
+    function isFloat(string) {
+        console.log("ENTRA " + string + " CON RESULTADO " + Number.isNaN(Number.parseFloat(string)))
+        return Number.isNaN(Number.parseFloat(string));
+    }
     return (
         <ThemeProvider theme={mdTheme}>
             <Box sx={{ display: "flex" }}>
@@ -200,8 +231,7 @@ function DashboardContent() {
                                     Cargando, espera un momento...
                                 </span>
                             </div>
-                        ) : null}
-                        <Grid container spacing={3}>
+                        ) : <Grid container spacing={3}>
                             {/* Chart */}
                             <Grid item xs={12} md={8} lg={12}>
                                 <Paper
@@ -209,7 +239,7 @@ function DashboardContent() {
                                         p: 2,
                                         display: "flex",
                                         flexDirection: "column",
-                                        height: 500,
+                                        height: 800,
                                     }}
                                 >
                                     <div>
@@ -222,12 +252,68 @@ function DashboardContent() {
                                                 <Typography sx={{ width: '33%', flexShrink: 0 }}>
                                                     Comisión Corresponsal
                                                 </Typography>
-                                                <Typography sx={{ color: 'text.secondary' }}>Actual: {corresponsalSettings.length == 0 ? null : corresponsalSettings.filter(item => item.type && item.type.S == "TX_COMMISSION")[0].value.N}</Typography>
+                                                <Typography sx={{ color: 'text.secondary' }}>Actual: US$ {comissionCor}  {expanded !== "panel1" ? "(Click para modificar)" : ""}</Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
                                                 <Typography>
-                                                    Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
-                                                    Aliquam eget maximus est, id dignissim quam.
+                                                    <div>
+                                                        <TextField
+                                                            sx={{ display: "flex", justifyContent: "flex-start", width: 125 }}
+                                                            label="Valor (USD)"
+                                                            id="filled-size-small"
+                                                            value={comissionCorText}
+                                                            onChange={(event) => {
+                                                                if (event.target.value.split(".").length > 2) {
+                                                                    return;
+                                                                }
+                                                                if (/^[0-9.]*$/i.test(event.target.value)) {
+                                                                    setComissionCorText(event.target.value)
+                                                                }
+                                                            }}
+
+                                                            variant="filled"
+                                                            size="small"
+                                                        />
+                                                        <Fab variant="extended" onClick={async () => {
+                                                            setLoadingButton(true);
+                                                            const informacion = corresponsalSettings.filter(item => item.type && item.type.S == "TX_COMMISSION")[0]
+                                                            console.log(informacion)
+                                                            const request = {
+                                                                RequestItems: {
+                                                                    ["MBCorresponsalSettings-oqkpjuho2ngvbonruy7shv26zu-pre"]: [
+                                                                        {
+                                                                            PutRequest: {
+                                                                                Item: {
+                                                                                    ...informacion,
+                                                                                    updatedAt: { S: new Date().toISOString() },
+                                                                                    value: { N: Number(comissionCorText) + "" }
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                    ],
+                                                                },
+                                                            };
+                                                            const response = await axios.post(
+                                                                "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+                                                                {
+                                                                    type: "setItem",
+                                                                    object: request,
+                                                                }
+                                                            );
+                                                            console.log(response.data)
+                                                            console.log(JSON.stringify(response.data))
+                                                            setComissionCor(comissionCorText)
+                                                            setLoadingButton(false);
+                                                            console.log("WIDTH")
+                                                            console.log(window.innerWidth)
+                                                        }} disabled={loadingButton ? true : comissionCor === comissionCorText ? true : isFloat(comissionCorText) ? true : false} sx={{ marginLeft: (window.innerWidth / 100) * 6, justifyContent: "flex-end" }}>
+                                                            Guardar
+
+                                                            {loadingButton ? <PendingTwoToneIcon /> : <SaveAsIcon style={{ marginLeft: 10 }} />}
+
+                                                        </Fab>
+
+                                                    </div>
                                                 </Typography>
                                             </AccordionDetails>
                                         </Accordion>
@@ -239,34 +325,31 @@ function DashboardContent() {
                                             >
                                                 <Typography sx={{ width: '33%', flexShrink: 0 }}>Blinks</Typography>
                                                 <Typography sx={{ color: 'text.secondary' }}>
-                                                    Última vez modificado el
+                                                    {expanded !== "panel2" ? "(Click para modificar)" : ""}
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
                                                 <Typography>
-                                                    Donec placerat, lectus sed mattis semper, neque lectus feugiat lectus,
-                                                    varius pulvinar diam eros in elit. Pellentesque convallis laoreet
-                                                    laoreet.
+                                                    <BlinksTable lista={blinkCost} />
                                                 </Typography>
                                             </AccordionDetails>
                                         </Accordion>
                                         <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
                                             <AccordionSummary
-                                                expandIcon={<ExpandMoreIcon />}
+                                                expandIcon={<>{expanded !== "panel3" ? <DriveFileRenameOutline /> : null}<ExpandMoreIcon /></>}
                                                 aria-controls="panel3bh-content"
                                                 id="panel3bh-header"
                                             >
                                                 <Typography sx={{ width: '33%', flexShrink: 0 }}>
-                                                    Advanced settings
+                                                    Blinks Corresponsal
                                                 </Typography>
                                                 <Typography sx={{ color: 'text.secondary' }}>
-                                                    Filtering has been entirely disabled for whole web server
+                                                    {expanded !== "panel3" ? "(Click para modificar)" : ""}
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
                                                 <Typography>
-                                                    Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
-                                                    amet egestas eros, vitae egestas augue. Duis vel est augue.
+                                                    <BlinksCorrTable lista={blinkCostCorr} />
                                                 </Typography>
                                             </AccordionDetails>
                                         </Accordion>
@@ -288,7 +371,8 @@ function DashboardContent() {
                                     </div>
                                 </Paper>
                             </Grid>
-                        </Grid>
+                        </Grid>}
+
                         <Copyright sx={{ pt: 4 }} />
                     </Container>
                 </Box>
