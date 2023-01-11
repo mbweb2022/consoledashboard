@@ -107,6 +107,7 @@ function DashboardContent() {
     const [filtro, setFiltered] = React.useState([])
     const [buscador, setBuscador] = React.useState("");
     const [isLoading, setLoading] = React.useState(false)
+    const [verificados, setVerificados] = React.useState([]);
     React.useEffect(() => {
 
 
@@ -122,6 +123,13 @@ function DashboardContent() {
 
         // Si la solicitud es exitosa, imprimimos la respuesta del servidor
         setUsuarios(response.data.code.information)
+        const respuesta = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+            type: "scan",
+            tableName: "MBUserVerified-oqkpjuho2ngvbonruy7shv26zu-pre",
+        });
+
+        // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+        setVerificados(respuesta.data.code.information)
         setLoading(false)
     }
     React.useEffect(() => {
@@ -245,7 +253,7 @@ function DashboardContent() {
                                             width: "100%"
                                         }}
                                     >
-                                        <UsersTable busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbcor" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbcor" || user.role == undefined)} />
+                                        <UsersTable verified={verificados} busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbcor" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbcor" || user.role == undefined)} />
                                     </Paper>
                                 </Grid>
                             </Grid>

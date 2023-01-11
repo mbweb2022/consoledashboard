@@ -3,7 +3,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Fab, TextField } from "@mui/material";
+import { Button, Fab, TextField } from "@mui/material";
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -30,6 +30,19 @@ import SaveAsIcon from '@mui/icons-material/SaveAs';
 import PendingTwoToneIcon from "@mui/icons-material/PendingTwoTone";
 import BlinksTable from "../components/BlinksTable"
 import BlinksCorrTable from "../components/BlinksCorrTable"
+import CuposCorresponsalTable from "../components/CuposCorresponsalTable"
+export const getServerSideProps = async ({ res }) => {
+    if (typeof window === 'undefined') {
+        res.writeHead(301, {
+            Location: '/'
+        });
+        res.end();
+    }
+
+    return {
+        props: {}
+    };
+};
 function Copyright(props) {
     return (
         <Typography
@@ -106,6 +119,9 @@ function DashboardContent() {
     const [loadingButton, setLoadingButton] = React.useState(false)
     const [blinkCost, setBlinkCost] = React.useState([])
     const [blinkCostCorr, setBlinkCostCorr] = React.useState([])
+
+    const [search, setSearch] = React.useState("")
+    const [users, setUsers] = React.useState([])
     const handleChange =
         (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? panel : false);
@@ -144,6 +160,14 @@ function DashboardContent() {
             });
             console.log(bCostCorr.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
             setBlinkCostCorr(bCostCorr.data.code.information.sort((a, b) => parseInt(a.id.S) - parseInt(b.id.S)))
+            const responseUsers = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+                type: "scan",
+                tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+            });
+
+            // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+            setUsers(responseUsers.data.code.information)
+
             setLoading(false);
         };
         consulta();
@@ -355,16 +379,25 @@ function DashboardContent() {
                                         </Accordion>
                                         <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
                                             <AccordionSummary
-                                                expandIcon={<ExpandMoreIcon />}
+                                                expandIcon={<>{expanded !== "panel4" ? <DriveFileRenameOutline /> : null}<ExpandMoreIcon /></>}
                                                 aria-controls="panel4bh-content"
                                                 id="panel4bh-header"
                                             >
-                                                <Typography sx={{ width: '33%', flexShrink: 0 }}>Personal data</Typography>
+                                                <Typography sx={{ width: '33%', flexShrink: 0 }}>Cupos de Corresponsales</Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
+                                                <div style={{ alignItems: "center", justifyContent: "flex-start", display: "flex" }}>
+                                                    <TextField
+                                                        required
+                                                        label={isLoading ? "" : "Buscar por nombre"}
+                                                        onChange={(event) => {
+                                                            setSearch(event.target.value)
+                                                        }}
+                                                        style={{ left: 10 }}
+                                                    />
+                                                </div>
                                                 <Typography>
-                                                    Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
-                                                    amet egestas eros, vitae egestas augue. Duis vel est augue.
+                                                    <CuposCorresponsalTable settings={corresponsalSettings} usuarios={users} buscador={search} />
                                                 </Typography>
                                             </AccordionDetails>
                                         </Accordion>

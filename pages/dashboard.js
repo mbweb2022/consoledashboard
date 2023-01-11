@@ -20,6 +20,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../components/listItems';
 import Deposits from '../components/Deposits';
 import Orders from '../components/Orders';
+import axios from "axios"
+import moment from "moment"
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -96,9 +98,84 @@ const mdTheme = createTheme();
 
 function DashboardContent() {
   const [open, setOpen] = React.useState(true);
+  const [USAtoECU, setUSAtoECU] = React.useState("0.000,00")
+  const [ECUtoUSA, setECUtoUSA] = React.useState("0.000,00")
+  const [txRecientes, setTxRecientes] = React.useState([])
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  React.useEffect(() => {
+    const update = async () => {
+
+      const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
+      const transacciones = response.data.code.information
+      const resultado = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
+      const codigos = resultado.data.code.information
+      const today = new Date();
+      const filtrado = transacciones.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today) <= 30)
+      const filtradoCompletado = []
+      filtrado.forEach(element => {
+        if (element.codeID) {
+          const codigo = codigos.filter(codigo => codigo.id.S === element.codeID.S)[0];
+          if (codigo.isUsed.BOOL == true && codigo.isUserUsed.BOOL == true) {
+            filtradoCompletado.push(element)
+          }
+        }
+      })
+      const responseUsuarios = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
+      const usuarios = responseUsuarios.data.code.information
+      const fromECUToUSA = []
+      const fromUSAToECU = []
+      filtradoCompletado.forEach(element => {
+        const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
+        const receipt = usuarios.filter(user => user.id.S === element.receiptID.S)[0]
+        if(shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU"){
+          fromUSAToECU.push(element)
+        }else if(shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA"){
+          fromECUToUSA.push(element)
+        }
+      })
+      let moneyUSAtoECU = 0
+      let moneyECUtoUSA = 0
+      fromUSAToECU.forEach(element => {
+        moneyUSAtoECU += parseFloat(element.amountDeposit.N)
+        console.log(moneyUSAtoECU)
+      })
+      fromECUToUSA.forEach(element => {
+        moneyECUtoUSA += parseFloat(element.amountDeposit.N)
+        console.log(moneyECUtoUSA)
+      })
+      setECUtoUSA(moneyECUtoUSA)
+      setUSAtoECU(moneyUSAtoECU)
+      const transacionesRecientes = []
+      const ordenado = filtradoCompletado.sort((element1, element2) => moment(element2.updatedAt.S).toDate() - moment(element1.updatedAt.S).toDate())
+      for(let i=0; i<5; i++){
+        let object = {
+          ...ordenado[i],
+          shipping: usuarios.filter(user => user.id.S === ordenado[i].shippingID.S)[0],
+          receipt: usuarios.filter(user => user.id.S === ordenado[i].receiptID.S)[0]
+        }
+        transacionesRecientes.push(object)
+      }
+      setTxRecientes(transacionesRecientes)
+      function getDifference(date1, date2) {
+        var Difference_In_Time = date2.getTime() - date1.getTime();
+        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        return Difference_In_Days;
+      }
+    }
+    update();
+  }, [])
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -180,7 +257,7 @@ function DashboardContent() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 350,
                   }}
                 >
                   <p>¡Bienvenido de nuevo!, Administrador de MoneyBlinks.</p>
@@ -194,16 +271,16 @@ function DashboardContent() {
                     p: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    height: 240,
+                    height: 350,
                   }}
                 >
-                  <Deposits />
+                  <Deposits ecu={ECUtoUSA} usa={USAtoECU} />
                 </Paper>
               </Grid>
               {/* Recent Orders */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
+                  <Orders txs={txRecientes} />
                 </Paper>
               </Grid>
             </Grid>

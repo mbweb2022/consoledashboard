@@ -137,7 +137,7 @@ export default function Home() {
         });
       setLoading(false)
       */
-    }, 5500)
+    }, 2500)
   }, [])
   return (
     <div className={isLoading ? null : null}>

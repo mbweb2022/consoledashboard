@@ -6,28 +6,27 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
+import moment from 'moment';
 
 // Generate Order Data
 function createData(id, date, name, shipTo, paymentMethod, amount) {
   return { id, date, name, shipTo, paymentMethod, amount };
 }
 
-const rows = [
-  createData(
-    0,
-    'Sin definir',
-    'Sin Definir',
-    'Sin definir',
-    'Saldo Moneyblinks',
-    0.00,
-  )
-];
 
 function preventDefault(event) {
   event.preventDefault();
 }
 
-export default function Orders() {
+export default function Orders(props) {
+  const { txs } = props
+  const rows = [
+  ];
+  console.log("ENTRAAA")
+  console.log(txs)
+  txs.forEach(element => {
+    rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : element.typeTransaction.S === "CARD" ? "TARJETA" : element.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO", element?.amountDeposit.N + ""))
+  });
   return (
     <React.Fragment>
       <Title>Transacciones Recientes</Title>

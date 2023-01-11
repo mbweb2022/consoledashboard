@@ -25,6 +25,18 @@ import ArchivosMedicalTable from "../components/ArchivosMedicalTable"
 import BankTable from "../components/BankTable";
 import ACHTable from "../components/ACHTable";
 import styles from '../styles/Home.module.css';
+export const getServerSideProps = async ({ res }) => {
+  if (typeof window === 'undefined') {
+    res.writeHead(301, {
+      Location: '/'
+    });
+    res.end();
+  }
+
+  return {
+    props: {}
+  };
+};
 function Copyright(props) {
   return (
     <Typography
