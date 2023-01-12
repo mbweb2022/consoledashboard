@@ -46,9 +46,6 @@ export const mainListItems = () => {
           </ListItemIcon>
           <ListItemText
             primary="Transacciones"
-            onClick={() => {
-              //router.push("/dashboard")
-            }}
           />
         </ListItemButton>
       ) : (
@@ -59,7 +56,7 @@ export const mainListItems = () => {
           <ListItemText
             primary="Transacciones"
             onClick={() => {
-              //router.push("/dashboard")
+              router.push("/transacciones")
             }}
           />
         </ListItemButton>
@@ -151,12 +148,6 @@ export const secondaryListItems = () => {
           />
         </ListItemButton>
       )}
-      <ListItemButton>
-        <ListItemIcon>
-          <AssignmentIcon />
-        </ListItemIcon>
-        <ListItemText primary="Txes Corresponsal" />
-      </ListItemButton>
       {usePathname() == "/pricing" ? (<ListItemButton style={{ backgroundColor: "lightgray" }}>
         <ListItemIcon>
           <AssignmentIcon />

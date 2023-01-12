@@ -22,6 +22,9 @@ import Deposits from '../components/Deposits';
 import Orders from '../components/Orders';
 import axios from "axios"
 import moment from "moment"
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { useRouter } from 'next/navigation';
+import styles from '../styles/Home.module.css';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -101,13 +104,15 @@ function DashboardContent() {
   const [USAtoECU, setUSAtoECU] = React.useState("0.000,00")
   const [ECUtoUSA, setECUtoUSA] = React.useState("0.000,00")
   const [txRecientes, setTxRecientes] = React.useState([])
+  const [isLoading, setLoading] = React.useState(false)
+  const router = useRouter();
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   React.useEffect(() => {
     const update = async () => {
-
+      setLoading(true)
       const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
         type: "scan",
         tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
@@ -139,9 +144,9 @@ function DashboardContent() {
       filtradoCompletado.forEach(element => {
         const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
         const receipt = usuarios.filter(user => user.id.S === element.receiptID.S)[0]
-        if(shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU"){
+        if (shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU") {
           fromUSAToECU.push(element)
-        }else if(shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA"){
+        } else if (shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA") {
           fromECUToUSA.push(element)
         }
       })
@@ -155,11 +160,11 @@ function DashboardContent() {
         moneyECUtoUSA += parseFloat(element.amountDeposit.N)
         console.log(moneyECUtoUSA)
       })
-      setECUtoUSA(moneyECUtoUSA)
-      setUSAtoECU(moneyUSAtoECU)
+      setECUtoUSA(moneyECUtoUSA.toFixed(2))
+      setUSAtoECU(moneyUSAtoECU.toFixed(2))
       const transacionesRecientes = []
       const ordenado = filtradoCompletado.sort((element1, element2) => moment(element2.updatedAt.S).toDate() - moment(element1.updatedAt.S).toDate())
-      for(let i=0; i<5; i++){
+      for (let i = 0; i < 5; i++) {
         let object = {
           ...ordenado[i],
           shipping: usuarios.filter(user => user.id.S === ordenado[i].shippingID.S)[0],
@@ -168,6 +173,7 @@ function DashboardContent() {
         transacionesRecientes.push(object)
       }
       setTxRecientes(transacionesRecientes)
+      setLoading(false)
       function getDifference(date1, date2) {
         var Difference_In_Time = date2.getTime() - date1.getTime();
         var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
@@ -208,10 +214,11 @@ function DashboardContent() {
             >
               Dashboard - Inicio
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
+            <IconButton color="inherit" onClick={() => {
+              localStorage.clear();
+              router.push("/login")
+            }}>
+              <ExitToAppIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -250,6 +257,10 @@ function DashboardContent() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
+              {isLoading ? <div className={styles.loadingdiv}>
+                <img src="/cargando.svg" width={234} />
+                <span style={{ fontSize: 18, fontFamily: "sans-serif" }}>Cargando, espera un momento...</span>
+              </div> : null}
               {/* Chart */}
               <Grid item xs={12} md={8} lg={9}>
                 <Paper

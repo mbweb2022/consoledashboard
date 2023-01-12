@@ -24,6 +24,9 @@ import axios from "axios"
 import styles from '../styles/Home.module.css';
 import Button from '@mui/material/Button';
 import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
+import FlagCircleIcon from '@mui/icons-material/FlagCircle';
+import TxsTable from '../components/TxsTable';
+import moment from 'moment';
 export const getServerSideProps = async ({ res }) => {
     if (typeof window === 'undefined') {
         res.writeHead(301, {
@@ -104,10 +107,11 @@ function DashboardContent() {
         setOpen(!open);
     };
     const [usuarios, setUsuarios] = React.useState([]);
-    const [filtro, setFiltered] = React.useState([])
+    const [txs, setTransacciones] = React.useState([]);
     const [buscador, setBuscador] = React.useState("");
     const [isLoading, setLoading] = React.useState(false)
-    const [verificados, setVerificados] = React.useState([]);
+    const [fromEcuador, setFromEcuador] = React.useState(false);
+    const [fromUSA, setFromUSA] = React.useState(false)
     React.useEffect(() => {
 
 
@@ -123,18 +127,37 @@ function DashboardContent() {
 
         // Si la solicitud es exitosa, imprimimos la respuesta del servidor
         setUsuarios(response.data.code.information)
+
         const respuesta = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
             type: "scan",
-            tableName: "MBUserVerified-oqkpjuho2ngvbonruy7shv26zu-pre",
+            tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
         });
-
-        // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-        setVerificados(respuesta.data.code.information)
+        const transacciones = respuesta.data.code.information
+        const resultado = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+            type: "scan",
+            tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
+        });
+        const codigos = resultado.data.code.information
+        const today = new Date();
+        const filtrado = transacciones.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today) <= 100)
+        const filtradoCompletado = []
+        filtrado.forEach(element => {
+            if (element.codeID && element.shippingID && element.receiptID && element.txType.S != "DOWN_CASH_MONEY" && element.txType.S != "UP_MONEY_CASH" && element.txType.S != "DOWN_MONEY_CASH" && element.txType.S != "UP_CASH_MONEY") {
+                const codigo = codigos.filter(codigo => codigo.id.S === element.codeID.S)[0];
+                if (codigo.isUsed.BOOL == true && codigo.isUserUsed.BOOL == true) {
+                    
+                    filtradoCompletado.push(element)
+                }
+            }
+        })
+        setTransacciones(filtradoCompletado.sort((a,b) => moment(b.updatedAt.S).toDate() - moment(a.updatedAt.S).toDate()))
         setLoading(false)
+        function getDifference(date1, date2) {
+            var Difference_In_Time = date2.getTime() - date1.getTime();
+            var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+            return Difference_In_Days;
+        }
     }
-    React.useEffect(() => {
-        setFiltered(usuarios.filter(user => user.nickname.S.includes(buscador)))
-    }, [buscador])
 
     return (
         <div className={isLoading ? null : null}>
@@ -166,7 +189,7 @@ function DashboardContent() {
                                 noWrap
                                 sx={{ flexGrow: 1 }}
                             >
-                                Corresponsales MoneyBlinks
+                                Usuarios MoneyBlinks
                             </Typography>
                         </Toolbar>
                     </AppBar>
@@ -230,9 +253,27 @@ function DashboardContent() {
                                                 }}
                                                 style={{ left: 10 }}
                                             />
-                                            <Button style={{ left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
+                                            <Button style={{ backgroundColor: "red", left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                                                 Refrescar
                                             </Button>
+                                            <Button style={{ left: 25 * 2 }} onClick={()=>{
+                                                setFromEcuador(false)
+                                                setFromUSA(true)
+                                            }} disabled={fromUSA} variant="contained" endIcon={<FlagCircleIcon />}>
+                                                Desde USA
+                                            </Button>
+                                            <Button disabled={fromEcuador} style={{ backgroundColor: "gold", left: 25 * 3 }} onClick={()=>{
+                                                setFromUSA(false)
+                                                setFromEcuador(true)
+                                            }} variant="contained" endIcon={<FlagCircleIcon />}>
+                                                Desde ECU
+                                            </Button>
+                                            {(fromUSA || fromEcuador) ? <Button style={{ backgroundColor: "black", left: 25 * 4 }} onClick={()=>{
+                                                setFromUSA(false)
+                                                setFromEcuador(false)
+                                            }} variant="contained" endIcon={<FlagCircleIcon />}>
+                                                Reestablecer
+                                            </Button> : null}
                                         </div>
                                         <p></p>
                                     </Paper>
@@ -248,7 +289,8 @@ function DashboardContent() {
                                             width: "100%"
                                         }}
                                     >
-                                        <UsersTable verified={verificados} busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbcor" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbcor" || user.role == undefined)} />
+                                        <TxsTable busqueda={buscador} txs={fromEcuador ? txs.filter(tx => usuarios.filter(user => user.id.S === tx.shippingID.S)[0].alpha3Code.S === "ECU") : fromUSA ? txs.filter(tx => usuarios.filter(user => user.id.S === tx.shippingID.S)[0].alpha3Code.S === "USA") : txs} usuarios={usuarios} />
+
                                     </Paper>
                                 </Grid>
                             </Grid>

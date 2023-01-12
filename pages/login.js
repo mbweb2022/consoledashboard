@@ -32,6 +32,20 @@ export default function Home() {
       if (usuario == "" || password == "") {
         setErrorMessage("Usuario o contraseña no pueden estar vacíos.")
         setIsVisible(true)
+        setLoading(false)
+        return;
+      }
+      if(!/^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/.test(password)){
+        setErrorMessage("La contraseña introducida no cumple con la política de contraseñas.")
+        setIsVisible(true)
+        setLoading(false)
+        return;
+      }
+      if(usuario.length < 6){
+        setErrorMessage("El usuario introducido es incorrecto.")
+        setIsVisible(true)
+        setLoading(false)
+        return;
       }
       try {
         const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
@@ -165,13 +179,12 @@ export default function Home() {
             <div className={errorMessage == "" ? null : `${styles.errorBox} ${isVisible ? styles.visible : styles.hidden}`}>
               <span style={{ fontFamily: "sans-serif", fontSize: 18 }}>{errorMessage}</span>
             </div>
-            <h3 style={{ paddingTop: 10, marginBottom: 25 }}>Iniciar sesión</h3>
+            <h3 style={{ textAlign: "center", paddingTop: 10 }}>INICIAR SESIÓN</h3>
 
             <label onKeyDown={(event) => {
               if (event.key === 'Enter') {
-                if (usuario != "" && password != "") {
-                  login()
-                }
+                login()
+
               }
             }} for="username"><span className={styles.inputtext} style={{ fontSize: 18 }}>Nombre de usuario</span></label>
             <input value={usuario} onChange={(event) => {
@@ -180,9 +193,8 @@ export default function Home() {
             <label for="password"><span className={styles.inputtext} style={{ fontSize: 18 }} >Contraseña</span></label>
             <input onKeyDown={(event) => {
               if (event.key === 'Enter') {
-                if (usuario != "" && password != "") {
-                  login()
-                }
+                login()
+
               }
             }} value={password} onChange={(event) => {
               setPassword(event.target.value);
