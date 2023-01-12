@@ -112,7 +112,7 @@ const mdTheme = createTheme();
 function DashboardContent() {
     const [open, setOpen] = React.useState(true);
     const [isLoading, setLoading] = React.useState(false);
-    const [expanded, setExpanded] = React.useState<string | false>(false);
+    const [expanded, setExpanded] = React.useState(false);
     const [corresponsalSettings, setCorresponsalSettings] = React.useState([])
     const [comissionCor, setComissionCor] = React.useState("0.00")
     const [comissionCorText, setComissionCorText] = React.useState("0.00")
@@ -123,7 +123,7 @@ function DashboardContent() {
     const [search, setSearch] = React.useState("")
     const [users, setUsers] = React.useState([])
     const handleChange =
-        (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+        (panel) => (event, isExpanded) => {
             setExpanded(isExpanded ? panel : false);
         };
     const toggleDrawer = () => {
