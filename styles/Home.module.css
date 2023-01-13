@@ -120,7 +120,7 @@
 }
 
 .card {
-  margin: 1.5rem;
+  margin-bottom: 75px;
   flex-basis: 35%;
   padding: 2.75rem;
   color: inherit;

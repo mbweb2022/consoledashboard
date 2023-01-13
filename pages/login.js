@@ -35,13 +35,13 @@ export default function Home() {
         setLoading(false)
         return;
       }
-      if(!/^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/.test(password)){
+      if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/.test(password)) {
         setErrorMessage("La contraseña introducida no cumple con la política de contraseñas.")
         setIsVisible(true)
         setLoading(false)
         return;
       }
-      if(usuario.length < 6){
+      if (usuario.length < 6) {
         setErrorMessage("El usuario introducido es incorrecto.")
         setIsVisible(true)
         setLoading(false)
@@ -87,6 +87,12 @@ export default function Home() {
           setErrorMessage("Hubo un error temporal, por favor, inténtalo más tarde.")
           setIsVisible(true)
           setLoading(false)
+          return;
+        } else {
+          setErrorMessage("Ahora mismo el sitio está en mantenimiento.")
+          setIsVisible(true)
+          setLoading(false)
+          return;
         }
 
       }
@@ -122,20 +128,24 @@ export default function Home() {
     setTimeout(async () => {
       const storedSessionToken = localStorage.getItem('ssTk-mb');
       if (storedSessionToken) {
-        console.log("STORED TOKEN")
-        console.log(storedSessionToken)
-        setLoading(true)
-        const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "autologin",
-          token: storedSessionToken
-        });
-        setLoading(false)
-        console.log("HUBO ERROR? XD")
-        console.log(response.data.error)
-        console.log(response.data.code)
-        console.log(JSON.stringify(response.data.code))
-        if (!response.data.error) {
-          router.push('/dashboard')
+        try {
+          console.log("STORED TOKEN")
+          console.log(storedSessionToken)
+          setLoading(true)
+          const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+            type: "autologin",
+            token: storedSessionToken
+          });
+          setLoading(false)
+          console.log("HUBO ERROR? XD")
+          console.log(response.data.error)
+          console.log(response.data.code)
+          console.log(JSON.stringify(response.data.code))
+          if (!response.data.error) {
+            router.push('/dashboard')
+          }
+        } catch (e) {
+          setLoading(false)
         }
 
       }
@@ -179,7 +189,7 @@ export default function Home() {
             <div className={errorMessage == "" ? null : `${styles.errorBox} ${isVisible ? styles.visible : styles.hidden}`}>
               <span style={{ fontFamily: "sans-serif", fontSize: 18 }}>{errorMessage}</span>
             </div>
-            <h3 style={{ textAlign: "center", paddingTop: 10 }}>INICIAR SESIÓN</h3>
+            <h3 style={{ textAlign: "center", paddingTop: 10, marginBottom: 10 }}>INICIAR SESIÓN</h3>
 
             <label onKeyDown={(event) => {
               if (event.key === 'Enter') {

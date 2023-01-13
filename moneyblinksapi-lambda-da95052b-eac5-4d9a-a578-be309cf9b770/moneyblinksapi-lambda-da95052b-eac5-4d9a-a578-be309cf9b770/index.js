@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk");
 const axios = require("axios");
 exports.handler = async (event) => {
-  const env = false;
+  const env = true;
   allowedUsers = ["jcmedvicecu", "jcmvusa2022", "hotdoctor"];
   const envUrl = env
     ? "https://console.moneyblinks.com"
