@@ -110,7 +110,7 @@ function DashboardContent() {
   const [isLoading, setLoading] = React.useState(false)
   React.useEffect(() => {
 
-    
+
     consulta();
 
   }, [])
@@ -180,7 +180,9 @@ function DashboardContent() {
                 px: [1],
               }}
             >
+              <img src="/logo2.png" style={{ width: "64px", marginRight: 45 }} />
               <IconButton onClick={toggleDrawer}>
+
                 <ChevronLeftIcon />
               </IconButton>
             </Toolbar>
@@ -222,7 +224,7 @@ function DashboardContent() {
                     }}
                   >
                     <p></p>
-                    <div style={{alignItems: "center", justifyContent: "flex-start", display: "flex"}}>
+                    <div style={{ alignItems: "center", justifyContent: "flex-start", display: "flex" }}>
                       <TextField
                         required
                         label={isLoading ? "" : "Buscar por nombre"}

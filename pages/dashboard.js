@@ -25,6 +25,11 @@ import moment from "moment"
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useRouter } from 'next/navigation';
 import styles from '../styles/Home.module.css';
+import { Fab } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -100,11 +105,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme();
 
 function DashboardContent() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
   const [USAtoECU, setUSAtoECU] = React.useState("0.000,00")
   const [ECUtoUSA, setECUtoUSA] = React.useState("0.000,00")
   const [txRecientes, setTxRecientes] = React.useState([])
   const [isLoading, setLoading] = React.useState(false)
+  const [admin, setAdmin] = React.useState(null)
+  const [txs, setTxs] = React.useState([])
+  const [listaUsuarios, setListaUsuarios] = React.useState([])
   const router = useRouter();
   const toggleDrawer = () => {
     setOpen(!open);
@@ -112,7 +120,13 @@ function DashboardContent() {
 
   React.useEffect(() => {
     const update = async () => {
+
+      console.log("DETECTANDO ADMINISTRADOR")
+      const object = localStorage.getItem("ssTk-us")
+      console.log(object)
+      console.log(JSON.parse(object))
       setLoading(true)
+      setAdmin(JSON.parse(object))
       const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
         type: "scan",
         tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
@@ -139,6 +153,8 @@ function DashboardContent() {
         tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
       });
       const usuarios = responseUsuarios.data.code.information
+      const filtradoUsuarios = usuarios.filter(user => getDifference(moment(user.createdAt.S).toDate(), today) <= 30)
+      setListaUsuarios(filtradoUsuarios)
       const fromECUToUSA = []
       const fromUSAToECU = []
       filtradoCompletado.forEach(element => {
@@ -150,6 +166,7 @@ function DashboardContent() {
           fromECUToUSA.push(element)
         }
       })
+      setTxs(filtradoCompletado)
       let moneyUSAtoECU = 0
       let moneyECUtoUSA = 0
       fromUSAToECU.forEach(element => {
@@ -193,6 +210,7 @@ function DashboardContent() {
               pr: '24px', // keep right padding when drawer closed
             }}
           >
+
             <IconButton
               edge="start"
               color="inherit"
@@ -231,7 +249,9 @@ function DashboardContent() {
               px: [1],
             }}
           >
+            <img src="/logo2.png" style={{ width: "64px", marginRight: 45 }} />
             <IconButton onClick={toggleDrawer}>
+              
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
@@ -260,9 +280,7 @@ function DashboardContent() {
               {isLoading ? <div className={styles.loadingdiv}>
                 <img src="/cargando.svg" width={234} />
                 <span style={{ fontSize: 18, fontFamily: "sans-serif" }}>Cargando, espera un momento...</span>
-              </div> : null}
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              </div> : <Grid item xs={12} md={8} lg={9}>
                 <Paper
                   sx={{
                     p: 2,
@@ -271,11 +289,61 @@ function DashboardContent() {
                     height: 350,
                   }}
                 >
-                  <p>¡Bienvenido de nuevo!, Administrador de MoneyBlinks.</p>
-                  <p>Paséate un poco entre todas nuestras opciones.</p>
+                  {admin != null ? <><Typography component="div">
+                    <Box sx={{ fontFamily: 'Monospace', fontSize: 'h6.fontSize', m: 1 }}>
+                      Bienvenido de nuevo, {admin.fullName.S}.
+                    </Box>
+                    <Box sx={{ fontFamily: 'Monospace', fontSize: 'h6.fontSize', m: 1 }}>
+                      Al panel de Administrador MoneyBlinks
+                    </Box>
+                  </Typography>
+                    <Typography component="div">
+                      <Box sx={{ fontFamily: 'default', fontSize: 16, m: 1 }}>
+                        En los últimos 30 dias se han completado un total de {txs.length} transacciones,
+                      </Box>
+                      <Box sx={{ fontFamily: 'default', fontSize: 16, m: 1 }}>
+                        y se han registrado una cantidad de {listaUsuarios.length} usuarios en la aplicación.
+                      </Box>
+                    </Typography>
+                    <p></p>
+                    <Typography component="div">
+                      <Box sx={{ fontFamily: 'default', fontSize: 16, m: 1 }}>
+                        Coméntanos, ¿Qué deseas hacer?
+                      </Box>
+                    </Typography>
+                    <p></p>
+                    <div>
+                      <Fab variant="extended" style={{ fontSize: 13, color: "white", maxWidth: 250, backgroundColor: "red" }} onClick={() => {
+                        router.push("/transacciones")
+                      }}>
+                        <ShoppingCartIcon sx={{ mr: 1 }} fontSize="small" />
+                        Revisar Txs
+                      </Fab>
+                      <Fab variant="extended" style={{ marginLeft: 10, fontSize: 13, color: "white", maxWidth: 250, backgroundColor: "gold" }} onClick={() => {
+                        router.push("/usuarios")
+                      }}>
+                        <ManageAccountsIcon sx={{ mr: 1 }} fontSize="small" />
+                        Evaluar Usuarios
+                      </Fab>
+                      <Fab variant="extended" style={{ marginLeft: 10, fontSize: 13, color: "white", maxWidth: 250, backgroundColor: "green" }} onClick={() => {
+                        router.push("/pricing")
+                      }}>
+                        <AttachMoneyIcon sx={{ mr: 1 }} fontSize="small" />
+                        Corregir Pricing
+                      </Fab>
+                      <Fab variant="extended" style={{ marginLeft: 10, fontSize: 13, color: "white", maxWidth: 250, backgroundColor: "purple" }} onClick={() => {
+                        router.push("/archivos")
+                      }}>
+                        <CloudDownloadIcon sx={{ mr: 1 }} fontSize="small" />
+                        Descargar Archivos
+                      </Fab>
+                    </div>
+
+
+                  </> : null}
+
                 </Paper>
-              </Grid>
-              {/* Recent Deposits */}
+              </Grid>}
               <Grid item xs={12} md={4} lg={3}>
                 <Paper
                   sx={{

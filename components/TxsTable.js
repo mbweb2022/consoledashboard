@@ -21,7 +21,7 @@ function Row(props) {
                 <TableCell align="left">{shipping.nickname.S} ({shipping.alpha3Code.S})</TableCell>
                 <TableCell align="left">{receipt.nickname.S} ({receipt.alpha3Code.S})</TableCell>
                 <TableCell align="left">{row.typeTransaction ? row.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : row.typeTransaction.S === "CARD" ? "TARJETA" : row.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO" : "INDEFINIDO"}</TableCell>
-                <TableCell align="left">{row.amountDeposit.N} </TableCell>
+                <TableCell align="left">US ${row.amountDeposit.N} </TableCell>
             </TableRow>
         </React.Fragment>
     );

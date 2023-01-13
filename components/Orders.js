@@ -7,6 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Title from './Title';
 import moment from 'moment';
+import { useRouter } from 'next/router';
 
 // Generate Order Data
 function createData(id, date, name, shipTo, paymentMethod, amount) {
@@ -19,6 +20,7 @@ function preventDefault(event) {
 }
 
 export default function Orders(props) {
+  const router = useRouter();
   const { txs } = props
   const rows = [
   ];
@@ -47,12 +49,14 @@ export default function Orders(props) {
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.shipTo}</TableCell>
               <TableCell>{row.paymentMethod}</TableCell>
-              <TableCell align="right">{`$${row.amount}`}</TableCell>
+              <TableCell align="right">{`US $${row.amount}`}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
+      <Link color="primary" href="#" onClick={()=>{
+        router.push("/transacciones")
+      }} sx={{ mt: 3 }}>
         Ver más transacciones
       </Link>
     </React.Fragment>

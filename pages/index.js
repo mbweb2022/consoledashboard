@@ -25,9 +25,9 @@ export default function Home() {
       </Head>
 
       <main>
-        <img src="/logo2.png" style={{ width: "128px", height: "60px" }} />
+        <img src="/logo2.png" style={{ width: "128px", height: "128px" }} />
         <h1 className={styles.title}>
-          ¡Bienvenido a <span style={{ color: "gold" }}>M</span>oney<span style={{ color: "gold" }}>B</span>link<span style={{ color: "gold" }}>$</span>!
+          ¡Bienvenido a <span style={{ color: "gold" }}>M</span>oney<span style={{ color: "gold" }}>B</span>link<span style={{ color: "gold" }}>S</span>!
         </h1>
 
         <p className={styles.description}>

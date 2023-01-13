@@ -179,7 +179,9 @@ function DashboardContent() {
                                 px: [1],
                             }}
                         >
+                            <img src="/logo2.png" style={{ width: "64px", marginRight: 45 }} />
                             <IconButton onClick={toggleDrawer}>
+
                                 <ChevronLeftIcon />
                             </IconButton>
                         </Toolbar>

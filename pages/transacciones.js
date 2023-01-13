@@ -145,12 +145,12 @@ function DashboardContent() {
             if (element.codeID && element.shippingID && element.receiptID && element.txType.S != "DOWN_CASH_MONEY" && element.txType.S != "UP_MONEY_CASH" && element.txType.S != "DOWN_MONEY_CASH" && element.txType.S != "UP_CASH_MONEY") {
                 const codigo = codigos.filter(codigo => codigo.id.S === element.codeID.S)[0];
                 if (codigo.isUsed.BOOL == true && codigo.isUserUsed.BOOL == true) {
-                    
+
                     filtradoCompletado.push(element)
                 }
             }
         })
-        setTransacciones(filtradoCompletado.sort((a,b) => moment(b.updatedAt.S).toDate() - moment(a.updatedAt.S).toDate()))
+        setTransacciones(filtradoCompletado.sort((a, b) => moment(b.updatedAt.S).toDate() - moment(a.updatedAt.S).toDate()))
         setLoading(false)
         function getDifference(date1, date2) {
             var Difference_In_Time = date2.getTime() - date1.getTime();
@@ -202,7 +202,9 @@ function DashboardContent() {
                                 px: [1],
                             }}
                         >
+                            <img src="/logo2.png" style={{ width: "64px", marginRight: 45 }} />
                             <IconButton onClick={toggleDrawer}>
+
                                 <ChevronLeftIcon />
                             </IconButton>
                         </Toolbar>
@@ -256,19 +258,19 @@ function DashboardContent() {
                                             <Button style={{ backgroundColor: "red", left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                                                 Refrescar
                                             </Button>
-                                            <Button style={{ left: 25 * 2 }} onClick={()=>{
+                                            <Button style={{ left: 25 * 2 }} onClick={() => {
                                                 setFromEcuador(false)
                                                 setFromUSA(true)
                                             }} disabled={fromUSA} variant="contained" endIcon={<FlagCircleIcon />}>
                                                 Desde USA
                                             </Button>
-                                            <Button disabled={fromEcuador} style={{ backgroundColor: "gold", left: 25 * 3 }} onClick={()=>{
+                                            <Button disabled={fromEcuador} style={{ backgroundColor: "gold", left: 25 * 3 }} onClick={() => {
                                                 setFromUSA(false)
                                                 setFromEcuador(true)
                                             }} variant="contained" endIcon={<FlagCircleIcon />}>
                                                 Desde ECU
                                             </Button>
-                                            {(fromUSA || fromEcuador) ? <Button style={{ backgroundColor: "black", left: 25 * 4 }} onClick={()=>{
+                                            {(fromUSA || fromEcuador) ? <Button style={{ backgroundColor: "black", left: 25 * 4 }} onClick={() => {
                                                 setFromUSA(false)
                                                 setFromEcuador(false)
                                             }} variant="contained" endIcon={<FlagCircleIcon />}>

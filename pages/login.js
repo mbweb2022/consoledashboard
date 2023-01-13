@@ -53,6 +53,10 @@ export default function Home() {
           username: usuario,
           password: password,
         });
+        const respuesta = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+          type: "scan",
+          tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+        });
 
         // Si la solicitud es exitosa, imprimimos la respuesta del servidor
         console.log(response.data.code.message);
@@ -72,8 +76,11 @@ export default function Home() {
           setLoading(false)
           return;
         } else if (response.data.code.token) {
-          router.push('/dashboard')
+
           localStorage.setItem('ssTk-mb', response.data.code.token);
+          const data = respuesta.data.code.information.filter(user => user.nickname.S === usuario.toLowerCase())[0]
+          localStorage.setItem('ssTk-us', JSON.stringify(data));
+          router.push('/dashboard')
           setLoading(false)
           return;
         } else {
@@ -184,20 +191,20 @@ export default function Home() {
           <div className={styles.card}>
 
             <div className={styles.logocard}>
-              <img src="/logo2.png" style={{ width: "128px", marginBottom: errorMessage == "" ? 0 : 20 }} />
+              <img src="/logo2.png" style={{ width: "128px", marginBottom: errorMessage == "" ? 0 : 10 }} />
             </div>
             <div className={errorMessage == "" ? null : `${styles.errorBox} ${isVisible ? styles.visible : styles.hidden}`}>
               <span style={{ fontFamily: "sans-serif", fontSize: 18 }}>{errorMessage}</span>
             </div>
-            <h3 style={{ textAlign: "center", paddingTop: 10, marginBottom: 10 }}>INICIAR SESIÓN</h3>
+            <h3 style={{ textAlign: "center", marginTop: 10, marginBottom: 15 }}>INICIAR SESIÓN</h3>
 
             <label onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 login()
 
               }
-            }} for="username"><span className={styles.inputtext} style={{ fontSize: 18 }}>Nombre de usuario</span></label>
-            <input value={usuario} onChange={(event) => {
+            }} for="username"><span className={styles.inputtext}  style={{ fontSize: 18 }}>Nombre de usuario</span></label>
+            <input value={usuario} maxLength={16} onChange={(event) => {
               setUsuario(event.target.value);
             }} disabled={isLoading} type="email" className={styles.input} id="username" name="username" />
             <label for="password"><span className={styles.inputtext} style={{ fontSize: 18 }} >Contraseña</span></label>
@@ -206,7 +213,7 @@ export default function Home() {
                 login()
 
               }
-            }} value={password} onChange={(event) => {
+            }}maxLength={24} value={password} onChange={(event) => {
               setPassword(event.target.value);
             }} disabled={isLoading} style={{ marginBottom: 10 }} className={styles.input} type="password" id="password" name="password" />
 
