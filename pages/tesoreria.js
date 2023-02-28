@@ -21,10 +21,13 @@ import { mainListItems, secondaryListItems } from "../components/listItems";
 import Deposits from "../components/Deposits";
 import Orders from "../components/Orders";
 import axios from "axios";
-import ArchivosMedicalTable from "../components/ArchivosMedicalTable"
 import BankTable from "../components/BankTable";
 import ACHTable from "../components/ACHTable";
 import styles from '../styles/Home.module.css';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -109,6 +112,7 @@ function DashboardContent() {
   const [ACHList, setACHList] = React.useState([])
   const [usuarios, setUsuarios] = React.useState([])
   const [isLoading, setLoading] = React.useState(false)
+  const [view, setView] = React.useState("")
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -172,7 +176,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Archivos MoneyBlinks
+              Tesorería MoneyBlinks
             </Typography>
           </Toolbar>
         </AppBar>
@@ -228,18 +232,32 @@ function DashboardContent() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: 500,
+                    height: 115,
                   }}
                 >
-                  <BankTable
-                    archivos={listaArchivos.filter(a => a.name.includes("ECU-BANK"))}
-                  />
+                  Por favor, escoja entre las siguientes opciones:
+                  {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Tipo de Tesorería</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={view}
+                        label="Transacciones"
+                        onChange={(e) => {
+                          setView(e.target.value);
+                        }}
+                      >
+                        <MenuItem value={"ACH"}>Checkbook Transactions (ACH)</MenuItem>
+                        <MenuItem value={"Bank"}>ECU Bank Generated Files</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>}
                 </Paper>
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
           </Container>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          {view == "" ? null : <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
               <Grid item xs={12} md={8} lg={12}>
@@ -251,15 +269,18 @@ function DashboardContent() {
                     height: 500,
                   }}
                 >
-                  <ACHTable
+                  {view === "ACH" ? <ACHTable
                     lista={ACHList}
                     usuarios={usuarios}
-                  />
+                  /> :
+                    <BankTable
+                      archivos={listaArchivos.filter(a => a.name.includes("ECU-BANK"))}
+                    />}
                 </Paper>
               </Grid>
             </Grid>
             <Copyright sx={{ pt: 4 }} />
-          </Container>
+          </Container>}
         </Box>
       </Box>
     </ThemeProvider>

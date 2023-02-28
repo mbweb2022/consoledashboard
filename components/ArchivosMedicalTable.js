@@ -24,6 +24,7 @@ import ErrorOutlineTwoToneIcon from "@mui/icons-material/ErrorOutlineTwoTone";
 import VerifiedUserTwoToneIcon from "@mui/icons-material/VerifiedUserTwoTone";
 import GppBadTwoToneIcon from "@mui/icons-material/GppBadTwoTone";
 import moment from "moment";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 function Row(props) {
   const { row } = props;
   const [loading, setLoading] = React.useState(false);
@@ -37,10 +38,10 @@ function Row(props) {
         </TableCell>
         <TableCell align="right">
           <Button
-            style={{ paddingLeft: 10, backgroundColor: "red" }}
+            style={{ paddingLeft: 0, backgroundColor: "red" }}
             disabled={loading}
             variant="contained"
-            endIcon={loading ? <PendingTwoToneIcon /> : <SendIcon />}
+            endIcon={loading ? <PendingTwoToneIcon /> : <CloudDownloadIcon />}
             onClick={async () => {
               if (!loading) {
                 setLoading(true);
@@ -57,9 +58,7 @@ function Row(props) {
                 setLoading(false);
               }
             }}
-          >
-            Descargar
-          </Button>
+          />
         </TableCell>
       </TableRow>
     </React.Fragment>

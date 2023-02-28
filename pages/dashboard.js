@@ -335,7 +335,7 @@ function DashboardContent() {
                         router.push("/archivos")
                       }}>
                         <CloudDownloadIcon sx={{ mr: 1 }} fontSize="small" />
-                        Descargar Archivos
+                        Ver Archivos
                       </Fab>
                     </div>
 

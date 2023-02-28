@@ -24,6 +24,10 @@ import axios from "axios";
 import ArchivosLifeTable from "../components/ArchivosLifeTable";
 import ArchivosMedicalTable from "../components/ArchivosMedicalTable";
 import styles from '../styles/Home.module.css';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -107,6 +111,7 @@ function DashboardContent() {
   const [listaArchivos, setListaArchivos] = React.useState([]);
   const [open, setOpen] = React.useState(true);
   const [isLoading, setLoading] = React.useState(false);
+  const [view, setView] = React.useState("")
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -211,63 +216,65 @@ function DashboardContent() {
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
-                    height: 500,
+                    height: 115,
                   }}
                 >
-                  <ArchivosLifeTable
-                    archivos={listaArchivos.filter((a) =>
-                      a.name.includes("LIFE")
-                    )}
-                  />
+
+                  Por favor, escoja entre las siguientes opciones:
+                  {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Tipo de Archivos</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={view}
+                        label="Files"
+                        onChange={(e) => {
+                          setView(e.target.value);
+                        }}
+                      >
+                        <MenuItem value={"Medical"}>Medical Insurance Files</MenuItem>
+                        <MenuItem value={"Life"}>Life Insurance Files</MenuItem>
+                        <MenuItem value={"SAPT2"}>ECU Bank Central Files</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>}
                 </Paper>
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
+
           </Container>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 500,
-                  }}
-                >
-                  <ArchivosMedicalTable
-                    archivos={listaArchivos.filter((a) =>
-                      a.name.includes("MEDICAL")
-                    )}
-                  />
-                </Paper>
+          {view === "" ? null :
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+              <Grid container spacing={3}>
+                {/* Chart */}
+                <Grid item xs={12} md={8} lg={12}>
+                  <Paper
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      height: 500,
+                    }}
+                  >
+                    {view === "Medical" ? <ArchivosMedicalTable
+                      archivos={listaArchivos.filter((a) =>
+                        a.name.includes("MEDICAL")
+                      )}
+                    /> : view === "Life" ? <ArchivosLifeTable
+                      archivos={listaArchivos.filter((a) =>
+                        a.name.includes("LIFE")
+                      )}
+                    /> : <ArchivosMedicalTable
+                      archivos={listaArchivos.filter((a) =>
+                        a.name.includes("SAPT")
+                      )}
+                    />}
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={12}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 500,
-                  }}
-                >
-                  <ArchivosMedicalTable
-                    archivos={listaArchivos.filter((a) =>
-                      a.name.includes("SAPT")
-                    )}
-                  />
-                </Paper>
-              </Grid>
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
+            </Container>}
+          <Copyright sx={{ pt: 4 }} />
         </Box>
       </Box>
     </ThemeProvider>

@@ -18,7 +18,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from '../components/listItems';
-import UsersTable from "../components/UsersTable"
 import TextField from '@mui/material/TextField';
 import axios from "axios"
 import styles from '../styles/Home.module.css';
