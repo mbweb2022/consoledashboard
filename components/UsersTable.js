@@ -284,7 +284,7 @@ function Row(props) {
                     </TableCell>
                     <TableCell>
                       {financial.id ? <Fab
-                        disabled={getterAmount == financial.amount.N ? true : getterBlinks == financial.blinks.N ? true : false}
+                        disabled={false}
                         variant="circular" sx={{ display: "flex" }} onClick={async () => {
                           setLoadingButton(true);
                           financial.amount.N = Number(getterAmount) + ""
