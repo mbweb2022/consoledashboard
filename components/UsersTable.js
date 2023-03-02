@@ -266,7 +266,7 @@ function Row(props) {
                     <TableCell>
                       <TextField
                         sx={{ display: "flex", justifyContent: "flex-start", width: 100 }}
-                        label="Valor (USD)"
+                        label="Valor"
                         id="filled-size-small"
                         value={getterBlinks}
                         onChange={(event) => {
@@ -295,7 +295,7 @@ function Row(props) {
                                 {
                                   PutRequest: {
                                     Item: {
-                                      ...row,
+                                      ...financial,
                                       updatedAt: { S: new Date().toISOString() },
                                     },
                                   },
