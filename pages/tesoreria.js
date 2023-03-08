@@ -274,7 +274,7 @@ function DashboardContent() {
                     usuarios={usuarios}
                   /> :
                     <BankTable
-                      archivos={listaArchivos.filter(a => a.name.includes("ECU-BANK"))}
+                      archivos={listaArchivos.filter(a => a.name.includes("ECU"))}
                     />}
                 </Paper>
               </Grid>
