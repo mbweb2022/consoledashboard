@@ -89,7 +89,7 @@ function Row(props) {
             console.log(response2)
             console.log(JSON.stringify(response2))
             row.isAvailabilityTx.BOOL = false;
-            row.email.S = row.email.S + " ELIMINADO"
+            row.email.S = row.email.S + "ELIMINADO"
             row.nickname.S = row.nickname.S + " ELIMINADO"
             row.phoneNumber.S = row.phoneNumber.S + " ELIMINADO"
             row.isDeleted = { BOOL: true };
