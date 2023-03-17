@@ -143,7 +143,8 @@ function DashboardContent() {
     setLoading(false)
   }
   React.useEffect(() => {
-    setFiltered(usuarios.filter(user => user.nickname.S.includes(buscador)))
+
+    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) ))
   }, [buscador])
 
   return (

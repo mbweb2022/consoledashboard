@@ -28,6 +28,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Button from '@mui/material/Button';
+import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -115,20 +117,20 @@ function DashboardContent() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const consulta = async () => {
+    setLoading(true);
+    const response = await axios.post(
+      "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+      {
+        type: "getInfo2",
+      }
+    );
+    const lista = response.data.code.information;
+    lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    setListaArchivos(lista);
+    setLoading(false);
+  };
   React.useEffect(() => {
-    const consulta = async () => {
-      setLoading(true);
-      const response = await axios.post(
-        "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
-        {
-          type: "getInfo2",
-        }
-      );
-      const lista = response.data.code.information;
-      lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setListaArchivos(lista);
-      setLoading(false);
-    };
     consulta();
   }, []);
   return (
@@ -221,24 +223,33 @@ function DashboardContent() {
                 >
 
                   Por favor, escoja entre las siguientes opciones:
-                  {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">Tipo de Archivos</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={view}
-                        label="Files"
-                        onChange={(e) => {
-                          setView(e.target.value);
-                        }}
-                      >
-                        <MenuItem value={"Medical"}>Medical Insurance Files</MenuItem>
-                        <MenuItem value={"Life"}>Life Insurance Files</MenuItem>
-                        <MenuItem value={"SAPT2"}>ECU Bank Central Files</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Box>}
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{ width: "85%" }}>
+                      {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-simple-select-label">Tipo de Archivos</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={view}
+                            label="Files"
+                            onChange={(e) => {
+                              setView(e.target.value);
+                            }}
+                          >
+                            <MenuItem value={"Medical"}>Medical Insurance Files</MenuItem>
+                            <MenuItem value={"Life"}>Life Insurance Files</MenuItem>
+                            <MenuItem value={"SAPT2"}>ECU Bank Central Files</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>}
+                    </div>
+                    <div style={{ alignItems: "center", justifyContent: "center" }}>                    <Button style={{ left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
+                      Refrescar
+                    </Button></div>
+
+                  </div>
+
                 </Paper>
               </Grid>
             </Grid>

@@ -28,6 +28,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Button from '@mui/material/Button';
+import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -116,35 +118,35 @@ function DashboardContent() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const consulta = async () => {
+    setLoading(true)
+    const responseUsers = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+      type: "scan",
+      tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+    });
+
+    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+    setUsuarios(responseUsers.data.code.information)
+    const response = await axios.post(
+      "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+      {
+        type: "getInfo",
+      }
+    );
+    const lista = response.data.code.information;
+    lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    setListaArchivos(lista);
+
+    const txs = await axios.post(
+      "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+      {
+        type: "getTXS",
+      }
+    );
+    setACHList(txs.data.code)
+    setLoading(false)
+  };
   React.useEffect(() => {
-    const consulta = async () => {
-      setLoading(true)
-      const responseUsers = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-        type: "scan",
-        tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
-      });
-
-      // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-      setUsuarios(responseUsers.data.code.information)
-      const response = await axios.post(
-        "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
-        {
-          type: "getInfo",
-        }
-      );
-      const lista = response.data.code.information;
-      lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      setListaArchivos(lista);
-
-      const txs = await axios.post(
-        "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
-        {
-          type: "getTXS",
-        }
-      );
-      setACHList(txs.data.code)
-      setLoading(false)
-    };
     consulta();
   }, []);
   return (
@@ -236,23 +238,30 @@ function DashboardContent() {
                   }}
                 >
                   Por favor, escoja entre las siguientes opciones:
-                  {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
-                    <FormControl fullWidth>
-                      <InputLabel id="demo-simple-select-label">Tipo de Tesorería</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={view}
-                        label="Transacciones"
-                        onChange={(e) => {
-                          setView(e.target.value);
-                        }}
-                      >
-                        <MenuItem value={"ACH"}>Checkbook Transactions (ACH)</MenuItem>
-                        <MenuItem value={"Bank"}>ECU Bank Generated Files</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Box>}
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{width: "85%"}}>                    {isLoading ? null : <Box sx={{ minWidth: 120, paddingTop: 1 }}>
+                      <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Tipo de Tesorería</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={view}
+                          label="Transacciones"
+                          onChange={(e) => {
+                            setView(e.target.value);
+                          }}
+                        >
+                          <MenuItem value={"ACH"}>Checkbook Transactions (ACH)</MenuItem>
+                          <MenuItem value={"Bank"}>ECU Bank Generated Files</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>}</div>
+                    <div style={{alignItems: "center", justifyContent: "center"}}>                    <Button style={{ left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
+                      Refrescar
+                    </Button></div>
+
+                  </div>
+
                 </Paper>
               </Grid>
             </Grid>
