@@ -127,11 +127,11 @@ function Row(props) {
       </Dialog>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell component="th" scope="row">
-          {row.nickname.S}
+          {row.fullName.S}
         </TableCell>
+        <TableCell align="left">{row.nickname.S}</TableCell>
         <TableCell align="left">{row.email.S}</TableCell>
         <TableCell align="left">{row.phoneNumber.S}</TableCell>
-        <TableCell align="left">{row.country ? row.country.S : "Indefinido"}</TableCell>
         <TableCell
           style={{
             color: row.isAvailabilityTx.BOOL == true ? "green" : "red",
@@ -163,7 +163,7 @@ function Row(props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>Nacimiento</TableCell>
-                    <TableCell>Nombre</TableCell>
+                    <TableCell>País</TableCell>
                     <TableCell>Dirección</TableCell>
                     <TableCell>Ciudad</TableCell>
                     <TableCell>Creado el</TableCell>
@@ -177,7 +177,7 @@ function Row(props) {
                         : "Sin definir"}
                     </TableCell>
                     <TableCell>
-                      {row.fullName ? row.fullName.S : "Sin definir"}
+                      {row.country ? row.country.S : "Sin definir"}
                     </TableCell>
                     <TableCell>
                       {row.address ? row.address.S : "Sin definir"}
@@ -625,10 +625,10 @@ export default function UsersTable(props) {
         <Table key={key} aria-label="collapsible table">
           <TableHead>
             <TableRow>
-              <TableCell>Nombre de Usuario</TableCell>
+              <TableCell>Nombre Completo</TableCell>
+              <TableCell align="left">Usuario</TableCell>
               <TableCell align="left">Correo</TableCell>
               <TableCell align="left">Teléfono</TableCell>
-              <TableCell align="left">País</TableCell>
               <TableCell align="left">Estado</TableCell>
               <TableCell />
             </TableRow>
