@@ -131,7 +131,7 @@ function Row(props) {
         </TableCell>
         <TableCell align="left">{row.email.S}</TableCell>
         <TableCell align="left">{row.phoneNumber.S}</TableCell>
-        <TableCell align="left">{row.country.S}</TableCell>
+        <TableCell align="left">{row.country ? row.country.S : "Indefinido"}</TableCell>
         <TableCell
           style={{
             color: row.isAvailabilityTx.BOOL == true ? "green" : "red",
@@ -640,6 +640,8 @@ export default function UsersTable(props) {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   const verificacion = verified.filter(verificado => row.id.S == verificado.userID.S)
+                  console.log("PASANDO USUARIO")
+                  console.log(row)
                   return (
                     <Row
                       key={row.nickname.S}
