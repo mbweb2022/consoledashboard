@@ -144,7 +144,7 @@ function DashboardContent() {
   }
   React.useEffect(() => {
 
-    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || new RegExp('\\b'+buscador.toLowerCase()+"\\b").test(user.fullName.S.toLowerCase()) ))
+    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b'+buscador.toLowerCase()+"\\b").test(user.fullName.S.toLowerCase())))
   }, [buscador])
 
   return (
