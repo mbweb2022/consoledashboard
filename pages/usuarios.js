@@ -143,7 +143,10 @@ function DashboardContent() {
     setLoading(false)
   }
   React.useEffect(() => {
-
+    if(buscador.includes(" ")){
+      setFiltered(usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase()) ))
+      return;
+    }
     setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b'+buscador.toLowerCase()+"\\b").test(user.fullName.S.toLowerCase())))
   }, [buscador])
 
