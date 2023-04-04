@@ -121,9 +121,10 @@ function DashboardContent() {
       type: "scan",
       tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
     });
-
+    let arrayUsuarios = response.data.code.information;
+    arrayUsuarios.sort((a,b) => moment(a.createdAt.S).toDate() - moment(b.createdAt.S).toDate())
     // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-    setUsuarios(response.data.code.information)
+    setUsuarios(arrayUsuarios)
 
     const respuesta = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
       type: "scan",
