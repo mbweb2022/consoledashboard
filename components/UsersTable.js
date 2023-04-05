@@ -132,6 +132,11 @@ function Row(props) {
         <TableCell align="left">{row.nickname.S}</TableCell>
         <TableCell align="left">{row.email.S}</TableCell>
         <TableCell align="left">{row.phoneNumber.S}</TableCell>
+        <TableCell>
+          {row.createdAt
+            ? moment(row.createdAt.S).format("L")
+            : "Sin definir"}
+        </TableCell>
         <TableCell
           style={{
             color: row.isAvailabilityTx.BOOL == true ? "green" : "red",
@@ -317,11 +322,11 @@ function Row(props) {
 
                       </Fab> :
                         <Fab
-                          
+
                           variant="circular" sx={{ display: "flex" }} onClick={async () => {
                             setUnableFinancial(true)
                           }}>
-                          {<FlashOnIcon style={{color: "red"}}/>}
+                          {<FlashOnIcon style={{ color: "red" }} />}
 
                         </Fab>}
                     </TableCell>
@@ -629,6 +634,7 @@ export default function UsersTable(props) {
               <TableCell align="left">Usuario</TableCell>
               <TableCell align="left">Correo</TableCell>
               <TableCell align="left">Teléfono</TableCell>
+              <TableCell align="left">Registrado el</TableCell>
               <TableCell align="left">Estado</TableCell>
               <TableCell />
             </TableRow>
