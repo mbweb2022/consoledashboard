@@ -141,7 +141,7 @@ function DashboardContent() {
         const filtrado = transacciones.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today) <= 100)
         const filtradoCompletado = []
         filtrado.forEach(element => {
-            if (element.codeID && element.shippingID && element.receiptID && element.txType.S != "DOWN_CASH_MONEY" && element.txType.S != "UP_MONEY_CASH" && element.txType.S != "DOWN_MONEY_CASH" && element.txType.S != "UP_CASH_MONEY") {
+            if (element.codeID && element.shippingID && element.receiptID) {
                 const codigo = codigos.filter(codigo => codigo.id.S === element.codeID.S)[0];
                 if (codigo.isUsed.BOOL == true && codigo.isUserUsed.BOOL == true) {
 
