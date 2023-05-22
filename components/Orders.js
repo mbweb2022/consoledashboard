@@ -27,7 +27,14 @@ export default function Orders(props) {
   console.log("ENTRAAA")
   console.log(txs)
   txs.forEach(element => {
-    rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : element.typeTransaction.S === "CARD" ? "TARJETA" : element.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO", element?.amountDeposit.N + ""))
+    console.log("PASANDO ORDEN")
+    console.log(element)
+    if(element.txType.S === "UP_MONEY_CASH" ||element.txType.S === "DOWN_MONEY_CASH") {
+      rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.txType.S === "UP_MONEY_CASH" ? "Recarga de Dinero Corresponsal" : "Descarga de Dinero Corresponsal" , element?.amountDeposit.N + ""))
+    }else{
+      rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : element.typeTransaction.S === "CARD" ? "TARJETA" : element.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO", element?.amountDeposit.N + ""))
+    }
+    
   });
   return (
     <React.Fragment>
