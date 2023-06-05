@@ -171,6 +171,8 @@ function Row(props) {
                     <TableCell>País</TableCell>
                     <TableCell>Dirección</TableCell>
                     <TableCell>Ciudad</TableCell>
+                    <TableCell>Tipo de Documentación</TableCell>
+                    <TableCell>Documentación</TableCell>
                     <TableCell>Creado el</TableCell>
                   </TableRow>
                 </TableHead>
@@ -189,6 +191,12 @@ function Row(props) {
                     </TableCell>
                     <TableCell>
                       {row.city ? row.city.S : "Sin definir"}
+                    </TableCell>
+                    <TableCell>
+                      {row.identificationType ? row.identificationType.S : "Sin definir"}
+                    </TableCell>
+                    <TableCell>
+                      {row.identificationNumber ? row.identificationNumber.S : "Sin definir"}
                     </TableCell>
                     <TableCell>
                       {row.createdAt
