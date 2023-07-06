@@ -29,6 +29,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } 
 import moment from "moment";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
+import EditIcon from '@mui/icons-material/Edit';
 function Row(props) {
   const { row, refresh, verificado, financial } = props;
   const [open, setOpen] = React.useState(false);
@@ -36,8 +37,10 @@ function Row(props) {
   const [loading, setLoading] = React.useState(false);
   const [getterAmount, setterAmount] = React.useState(financial.amount.N)
   const [getterBlinks, setterBlinks] = React.useState(financial.blinks.N)
+  const [getterName, setterName] = React.useState(row.fullName.S)
   const [unableFinancial, setUnableFinancial] = React.useState(false)
   const [loadingButton, setLoadingButton] = React.useState(false)
+  const [editingName, setEditingName] = React.useState(false)
   return (
     <React.Fragment>
       <Dialog
@@ -161,6 +164,76 @@ function Row(props) {
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Información Personal
+              </Typography>
+              <Table size="small" aria-label="info">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nombre Completo</TableCell>
+                    <TableCell>Editar/Guardar</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow key={row.email.S}>
+                    <TableCell component="th" scope="row">
+                      {editingName ? <TextField
+                        sx={{ display: "flex", justifyContent: "flex-start", width: 300 }}
+                        label="Nuevo Nombre Completo"
+                        id="filled-size-small"
+                        value={getterName}
+                        onChange={(event) => {
+                          setterName(event.target.value)
+                        }}
+
+                        variant="filled"
+                        size="small"
+                      /> : row.fullName.S}
+                    </TableCell>
+                    <TableCell>
+                      {editingName ? <Fab
+                        variant="circular" sx={{ display: "flex" }} onClick={async () => {
+                          setEditingName(false)
+                          setLoadingButton(true);
+                          row.fullName.S = getterName+"";
+                          const request = {
+                            RequestItems: {
+                              ["MBUser-oqkpjuho2ngvbonruy7shv26zu-pre"]: [
+                                {
+                                  PutRequest: {
+                                    Item: {
+                                      ...row,
+                                      updatedAt: { S: new Date().toISOString() },
+                                    },
+                                  },
+                                },
+                              ],
+                            },
+                          }
+                          const response = await axios.post(
+                            "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+                            {
+                              type: "setItem",
+                              object: request,
+                            }
+                          );
+                          refresh();
+                          setLoadingButton(false);
+                        }}>
+                        {loadingButton ? <PendingTwoToneIcon /> : <SaveAsIcon />}
+
+                      </Fab> : <Fab
+                        variant="circular" sx={{ display: "flex" }} onClick={async () => {
+                          setEditingName(true)
+                        }}>
+                        {loadingButton ? <PendingTwoToneIcon /> : <EditIcon />}
+
+                      </Fab>}
+                    </TableCell>
+
+                  </TableRow>
+                </TableBody>
+              </Table>
               <Typography variant="h6" gutterBottom component="div">
                 Más información
               </Typography>
