@@ -118,6 +118,13 @@ function DashboardContent() {
   }, [])
   const consulta = async () => {
     setLoading(true)
+    const financialResponse = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+      type: "scan",
+      tableName: "MBFinancialData-oqkpjuho2ngvbonruy7shv26zu-pre",
+    });
+    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
+    setFinancialData(financialResponse.data.code.information)
+    
     const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
       type: "scan",
       tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
@@ -136,12 +143,6 @@ function DashboardContent() {
     setVerificados(respuesta.data.code.information)
 
 
-    const financialResponse = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-      type: "scan",
-      tableName: "MBFinancialData-oqkpjuho2ngvbonruy7shv26zu-pre",
-    });
-    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-    setFinancialData(financialResponse.data.code.information)
     setLoading(false)
   }
   React.useEffect(() => {
