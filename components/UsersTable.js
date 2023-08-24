@@ -619,6 +619,17 @@ function Row(props) {
                             object: request,
                           }
                         );
+                        await axios.post(
+                          "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+                          {
+                            type: "emailing",
+                            template_name: "WELCOME_EMAIL_APPROVAL_"+row.alpha3Code.S,
+                            substitutions: {
+                              name: row.nickname.S
+                            },
+                            receiver: row.email.S 
+                          }
+                        );
                         refresh();
                         setLoading(false);
                       }}
