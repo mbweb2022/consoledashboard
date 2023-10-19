@@ -147,6 +147,8 @@ function DashboardContent() {
 
                     filtradoCompletado.push(element)
                 }
+            } else if (element.txType.S === "THIRD_ACCOUNTS" || element.txType.S === "OWN_ACCOUNTS") {
+                filtradoCompletado.push(element)
             }
         })
         setTransacciones(filtradoCompletado.sort((a, b) => moment(b.updatedAt.S).toDate() - moment(a.updatedAt.S).toDate()))

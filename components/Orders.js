@@ -21,7 +21,7 @@ function preventDefault(event) {
 
 export default function Orders(props) {
   const router = useRouter();
-  const { txs } = props
+  const { txs, users } = props
   const rows = [
   ];
   console.log("ENTRAAA")
@@ -29,12 +29,15 @@ export default function Orders(props) {
   txs.forEach(element => {
     console.log("PASANDO ORDEN")
     console.log(element)
-    if(element.txType.S === "UP_MONEY_CASH" ||element.txType.S === "DOWN_MONEY_CASH") {
-      rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.txType.S === "UP_MONEY_CASH" ? "Recarga de Dinero Corresponsal" : "Descarga de Dinero Corresponsal" , element?.amountDeposit.N + ""))
-    }else{
+    if (element.txType.S === "UP_MONEY_CASH" || element.txType.S === "DOWN_MONEY_CASH") {
+      rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.txType.S === "UP_MONEY_CASH" ? "Recarga de Dinero Corresponsal" : "Descarga de Dinero Corresponsal", element?.amountDeposit.N + ""))
+    } else if (element.txType.S === "THIRD_ACCOUNTS" || element.txType.S === "OWN_ACCOUNTS") {
+      rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.name, element.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : element.typeTransaction.S === "CARD" ? "TARJETA" : element.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO", element?.amountDeposit.N + ""))
+    } else {
       rows.push(createData(element.id.S, moment(element.updatedAt.S).toDate().toISOString(), element.shipping.nickname.S, element.receipt.nickname.S, element.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : element.typeTransaction.S === "CARD" ? "TARJETA" : element.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO", element?.amountDeposit.N + ""))
     }
-    
+
+
   });
   return (
     <React.Fragment>
@@ -61,7 +64,7 @@ export default function Orders(props) {
           ))}
         </TableBody>
       </Table>
-      <Link color="primary" href="#" onClick={()=>{
+      <Link color="primary" href="#" onClick={() => {
         router.push("/transacciones")
       }} sx={{ mt: 3 }}>
         Ver más transacciones

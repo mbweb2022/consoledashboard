@@ -19,7 +19,7 @@ function Row(props) {
             <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
                 <TableCell align="left">{moment(row.updatedAt.S).toDate().toISOString()}</TableCell>
                 <TableCell align="left">{shipping.nickname.S} ({shipping.alpha3Code.S})</TableCell>
-                <TableCell align="left">{receipt.nickname.S} ({receipt.alpha3Code.S})</TableCell>
+                <TableCell align="left">{receipt.nickname ? receipt.nickname.S : receipt.name} ({receipt.alpha3Code ? receipt.alpha3Code.S : receipt.country})</TableCell>
                 <TableCell align="left">{row.typeTransaction ? row.typeTransaction.S === "AMOUNTMB" ? "SALDO MONEYBLINKS" : row.typeTransaction.S === "CARD" ? "TARJETA" : row.typeTransaction.S === "ACCOUNT" ? "CUENTA BANCARIA" : "DESCONOCIDO" : row.txType.S === "UP_MONEY_CASH" ? "Recarga de Dinero Corresponsal" : row.txType.S === "DOWN_MONEY_CASH" ? "Descarga de Dinero Corresponsal" : "DESCONOCIDO"}</TableCell>
                 <TableCell align="left">US ${row.amountDeposit.N} </TableCell>
             </TableRow>
@@ -49,7 +49,7 @@ export default function TxsTable(props) {
     if (busqueda === "") {
         rows.push(...txs);
     } else {
-        rows.push(...txs.filter(tx => usuarios.filter(user => tx.shippingID.S === user.id.S)[0].nickname.S.includes(busqueda) || usuarios.filter(user => tx.receiptID.S === user.id.S)[0].nickname.S.includes(busqueda)))
+        rows.push(...txs.filter(tx => usuarios.filter(user => tx.shippingID.S === user.id.S)[0].nickname.S.includes(busqueda) || (tx.receiptID && usuarios.filter(user => tx.receiptID.S === user.id.S)[0].nickname.S.includes(busqueda))))
     }
 
 
@@ -74,7 +74,13 @@ export default function TxsTable(props) {
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row) => {
                                     const shipping = usuarios.filter(user => user.id.S === row.shippingID.S)[0]
-                                    const receipt = usuarios.filter(user => user.id.S === row.receiptID.S)[0]
+                                    let receipt = undefined;
+                                    if (row.txType.S === "THIRD_ACCOUNTS" || row.txType.S === "OWN_ACCOUNTS") {
+                                        const data = JSON.parse(row.txValues.S)
+                                        receipt = data.bankAccountToSend
+                                    }else{
+                                        receipt = usuarios.filter(user => user.id.S === row.receiptID.S)[0]
+                                    }
                                     return (
                                         <Row
                                             key={row.id.S}
