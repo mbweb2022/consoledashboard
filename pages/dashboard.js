@@ -127,41 +127,18 @@ function DashboardContent() {
       console.log(JSON.parse(object))
       setLoading(true)
       setAdmin(JSON.parse(object))
-      const requests = [
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "scan",
-          tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
-        }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "scan",
-          tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
-        }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "scan",
-          tableName: "MBThirdAccountsTransactions-oqkpjuho2ngvbonruy7shv26zu-pre",
-        }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "scan",
-          tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
-        }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-          type: "scan",
-          tableName: "MBOwnAccountsTransactions-oqkpjuho2ngvbonruy7shv26zu-pre",
-        })
-      ];
-
-      const [response, resultado, MBThirdTransactions, responseUsuarios, MBOwnTransactions] = await Promise.all(requests);
-
-      const transacciones = response.data.code.information;
-      const thirdTransactions = MBThirdTransactions.data.code.information
-      const ownTransactions = MBOwnTransactions.data.code.information
+      const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
+      const transacciones = response.data.code.information
+      const resultado = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
       const codigos = resultado.data.code.information
       const today = new Date();
       const filtrado = transacciones.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today) <= 30)
-      const filtradoThirdTxs = thirdTransactions.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today)<= 30)
-      const filtradoOwnTxs = ownTransactions.filter(element => getDifference(moment(element.updatedAt.S).toDate(), today)<= 30)
-      filtrado.push(...filtradoThirdTxs, ...filtradoOwnTxs)
-      
       const filtradoCompletado = []
       filtrado.forEach(element => {
         if (element.codeID) {
@@ -169,53 +146,36 @@ function DashboardContent() {
           if (codigo.isUsed.BOOL == true && codigo.isUserUsed.BOOL == true) {
             filtradoCompletado.push(element)
           }
-        }else if(element.bankReceiver){
-          filtradoCompletado.push(element)
         }
       })
-
+      const responseUsuarios = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+      });
       const usuarios = responseUsuarios.data.code.information
       const filtradoUsuarios = usuarios.filter(user => getDifference(moment(user.createdAt.S).toDate(), today) <= 30)
       setListaUsuarios(filtradoUsuarios)
       const fromECUToUSA = []
       const fromUSAToECU = []
       filtradoCompletado.forEach(element => {
-        if(element.bankReceiver){
-          const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
-          if(shipping.alpha3Code.S === "USA" && JSON.parse(element.bankReceiver.S).country === "ECU"){
-            fromUSAToECU.push(element)
-          } else if (shipping.alpha3Code.S === "ECU" && JSON.parse(element.bankReceiver.S).country === "USA") {
-            fromECUToUSA.push(element)
-          }
-        }else{
-          const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
-          const receipt = usuarios.filter(user => user.id.S === element.receiptID.S)[0]
-          if (shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU") {
-            fromUSAToECU.push(element)
-          } else if (shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA") {
-            fromECUToUSA.push(element)
-          }
+        const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
+        const receipt = usuarios.filter(user => user.id.S === element.receiptID.S)[0]
+        if (shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU") {
+          fromUSAToECU.push(element)
+        } else if (shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA") {
+          fromECUToUSA.push(element)
         }
-
       })
       setTxs(filtradoCompletado)
       let moneyUSAtoECU = 0
       let moneyECUtoUSA = 0
       fromUSAToECU.forEach(element => {
-        if(element.bankReceiver){
-          moneyUSAtoECU += parseFloat(element.amount.N)
-        }else{
-          moneyUSAtoECU += parseFloat(element.amountDeposit.N)
-        }
-        
+        moneyUSAtoECU += parseFloat(element.amountDeposit.N)
+        console.log(moneyUSAtoECU)
       })
       fromECUToUSA.forEach(element => {
-        if(element.bankReceiver){
-          moneyUSAtoECU += parseFloat(element.amount.N)
-        }else{
-          moneyECUtoUSA += parseFloat(element.amountDeposit.N)
-        }
-        
+        moneyECUtoUSA += parseFloat(element.amountDeposit.N)
+        console.log(moneyECUtoUSA)
       })
       setECUtoUSA(moneyECUtoUSA.toFixed(2))
       setUSAtoECU(moneyUSAtoECU.toFixed(2))
@@ -291,7 +251,7 @@ function DashboardContent() {
           >
             <img src="/logo2.png" style={{ width: "64px", marginRight: 45 }} />
             <IconButton onClick={toggleDrawer}>
-
+              
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
