@@ -48,7 +48,7 @@ export default function TxsTable(props) {
     const rows = [];
     if (busqueda === "") {
         rows.push(...txs);
-    } else {
+    } else if(busqueda.length >= 3) {
         rows.push(...txs.filter(tx => usuarios.filter(user => tx.shippingID.S === user.id.S)[0].nickname.S.includes(busqueda) || (tx.receiptID && usuarios.filter(user => tx.receiptID.S === user.id.S)[0].nickname.S.includes(busqueda))))
     }
 

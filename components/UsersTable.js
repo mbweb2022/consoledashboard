@@ -39,7 +39,6 @@ function Row(props) {
   const [getterBlinks, setterBlinks] = React.useState(financial.blinks.N)
   const [getterName, setterName] = React.useState(row.fullName.S)
   const [unableFinancial, setUnableFinancial] = React.useState(false)
-  const [loadingButton, setLoadingButton] = React.useState(false)
   const [editingName, setEditingName] = React.useState(false)
   return (
     <React.Fragment>
@@ -194,7 +193,7 @@ function Row(props) {
                       {editingName ? <Fab
                         variant="circular" sx={{ display: "flex" }} onClick={async () => {
                           setEditingName(false)
-                          setLoadingButton(true);
+                          setLoading(true);
                           row.fullName.S = getterName+"";
                           const request = {
                             RequestItems: {
@@ -218,15 +217,15 @@ function Row(props) {
                             }
                           );
                           refresh();
-                          setLoadingButton(false);
+                          setLoading(false);
                         }}>
-                        {loadingButton ? <PendingTwoToneIcon /> : <SaveAsIcon />}
+                        {loading ? <PendingTwoToneIcon /> : <SaveAsIcon />}
 
                       </Fab> : <Fab
                         variant="circular" sx={{ display: "flex" }} onClick={async () => {
                           setEditingName(true)
                         }}>
-                        {loadingButton ? <PendingTwoToneIcon /> : <EditIcon />}
+                        {loading ? <PendingTwoToneIcon /> : <EditIcon />}
 
                       </Fab>}
                     </TableCell>
@@ -372,7 +371,7 @@ function Row(props) {
                       {financial.id ? <Fab
                         disabled={false}
                         variant="circular" sx={{ display: "flex" }} onClick={async () => {
-                          setLoadingButton(true);
+                          setLoading(true);
                           financial.amount.N = Number(getterAmount) + ""
                           financial.blinks.N = Number(getterBlinks) + ""
                           const request = {
@@ -397,9 +396,9 @@ function Row(props) {
                             }
                           );
                           refresh();
-                          setLoadingButton(false);
+                          setLoading(false);
                         }}>
-                        {loadingButton ? <PendingTwoToneIcon /> : <SaveAsIcon />}
+                        {loading ? <PendingTwoToneIcon /> : <SaveAsIcon />}
 
                       </Fab> :
                         <Fab
@@ -594,7 +593,7 @@ function Row(props) {
                       }}
                       disabled={row.isAvailabilityTx.BOOL}
                       variant="contained"
-                      endIcon={<VerifiedUserTwoToneIcon />}
+                      endIcon={loading ? <PendingTwoToneIcon /> :<VerifiedUserTwoToneIcon />}
                       onClick={async () => {
                         setLoading(true);
                         row.isAvailabilityTx.BOOL = true;
@@ -644,7 +643,7 @@ function Row(props) {
                       }}
                       disabled={!row.isAvailabilityTx.BOOL}
                       variant="contained"
-                      endIcon={<GppBadTwoToneIcon />}
+                      endIcon={loading ? <PendingTwoToneIcon /> :<GppBadTwoToneIcon />}
                       onClick={async () => {
                         setLoading(true);
                         row.isAvailabilityTx.BOOL = false;
@@ -697,17 +696,21 @@ export default function UsersTable(props) {
     setKey(key + 1);
   };
   React.useEffect(() => {
-    if (busqueda.length == 0 && users.length != 0) {
+    if (busqueda.length >= 2 && users.length > 0) {
+      handleChangePage(null, 0)
       refreshTable();
     }
   }, [busqueda]);
   const handleChangePage = (event, newPage) => {
+    refreshTable();
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
+    refreshTable();
     setPage(0);
+    setRowsPerPage(+event.target.value);
+    
   };
   const rows = [];
   if (filtro.length != 0) {
@@ -715,7 +718,9 @@ export default function UsersTable(props) {
   } else if (busqueda == "") {
     rows.push(...users);
   }
+  const nadaEventoRefesco = () => {
 
+  }
   return (
     <Paper sx={{ width: "100%" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -746,7 +751,7 @@ export default function UsersTable(props) {
                       row={row}
                       verificado={verificacion.length == 0 ? null : verificacion[0]}
                       financial={financial.filter(element => row.id.S === element.userID.S)[0] ? financial.filter(element => row.id.S === element.userID.S)[0] : { amount: { N: 0 }, blinks: { N: 0 } }}
-                      refresh={refreshTable}
+                      refresh={nadaEventoRefesco}
                     />
                   );
                 })
