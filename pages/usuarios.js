@@ -24,13 +24,16 @@ import axios from "axios"
 import styles from '../styles/Home.module.css';
 import Button from '@mui/material/Button';
 import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
+import DownloadIcon from '@mui/icons-material/Download';
 import moment from 'moment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { Select as SelectAnt } from 'antd';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { DownloadUsersModal } from '../components/DownloadUsersModal';
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -111,7 +114,7 @@ function DashboardContent() {
     setOpen(!open);
   };
   const today = new Date();
-  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1)
+  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
   const [usuarios, setUsuarios] = React.useState([]);
   const [verificados, setVerificados] = React.useState([]);
   const [financialData, setFinancialData] = React.useState([])
@@ -123,10 +126,32 @@ function DashboardContent() {
   const [startDate, setStartDate] = React.useState(new Date(today.getFullYear() - 1, today.getMonth(), today.getDate()))
   const [endDate, setEndDate] = React.useState(now)
   const [view, setView] = React.useState("")
+  const [isVisibleModalUsers, setIsVisibleModalUsers] = React.useState(false)
+  const [filterOptions] = React.useState([
+    {
+      value: "NONE",
+      label: "Ninguno"
+    },
+    {
+      value: "APPROVED",
+      label: "Aprobados"
+    },
+    {
+      value: "DENIED",
+      label: "Rechazados"
+    }, {
+      value: "USA",
+      label: "Estados Unidos"
+    }, {
+      value: "ECU",
+      label: "Ecuador"
+    }
+  ])
+
   React.useEffect(() => {
 
 
-    consulta();
+    //consulta();
 
   }, [])
   const consulta = async () => {
@@ -188,7 +213,9 @@ function DashboardContent() {
     }
     setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b' + buscador.toLowerCase() + "\\b").test(user.fullName.S.toLowerCase())))
   }, [buscador])
-
+  const handleSelectChange = (value) => {
+    console.log(`Selected: ${value}`);
+  };
   return (
     <div className={isLoading ? null : null}>
       <ThemeProvider theme={mdTheme}>
@@ -283,9 +310,25 @@ function DashboardContent() {
                         onChange={(event) => {
                           setBuscador(event.target.value)
                         }}
-                        style={{ left: 10 }}
+                        style={{ left: 10, }}
                       />
                       <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
+                        Refrescar
+                      </Button>
+                      <Button style={{ left: 30, backgroundColor: "mediumturquoise" }} onClick={() => setIsVisibleModalUsers(true)} variant="contained" endIcon={<DownloadIcon />}>
+                        DESCARGAR
+                      </Button>
+                      <div >
+                        <SelectAnt
+                          size={"large"}
+                          defaultValue="NONE"
+                          onChange={handleSelectChange}
+                          style={{  left: 40 }}
+                          options={filterOptions}
+                        />
+                      </div>
+
+                      {/* <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                         Refrescar
                       </Button>
                       <Button style={{ left: 25 * 2, backgroundColor: "gold" }} onClick={filtrarAprobados} disabled={aprobados} variant="contained">
@@ -293,8 +336,8 @@ function DashboardContent() {
                       </Button>
                       <Button style={{ left: 25 * 3, backgroundColor: "magenta" }} onClick={filtrarRechazados} disabled={rechazados} variant="contained">
                         Rechazados
-                      </Button>
-                      <FormControl style={{ left: 25 * 4, width: 100 }}>
+                      </Button> */}
+                      {/* <FormControl style={{ left: 25 * 4, width: 100 }}>
                         <InputLabel id="demo-simple-select-label">País</InputLabel>
                         <Select
                           labelId="demo-simple-select-label"
@@ -308,15 +351,15 @@ function DashboardContent() {
                           <MenuItem value={"USA"}>USA</MenuItem>
                           <MenuItem value={"ECU"}>ECU</MenuItem>
                         </Select>
-                      </FormControl>
-                      <div style={{ paddingLeft: 25 * 5 }}>
+                      </FormControl> */}
+                      {/* <div style={{ paddingLeft: 30 }}>
                         <p>Fecha Inicio</p>
-                        <DatePicker selected={startDate} onChange={(date) => {setStartDate(date)}} />
+                        <DatePicker selected={startDate} onChange={(date) => { setStartDate(date) }} />
                       </div>
-                      <div style={{ paddingLeft: 25  }}>
+                      <div style={{ paddingLeft: 25 }}>
                         <p>Fecha Fin</p>
-                        <DatePicker selected={endDate} onChange={(date) => {setEndDate(date)}} />
-                      </div>
+                        <DatePicker selected={endDate} onChange={(date) => { setEndDate(date) }} />
+                      </div> */}
 
                       {aprobados || rechazados || view.length != 0 ?
                         <Button style={{ left: 25 * 7, backgroundColor: "black" }} onClick={reestablecer} variant="contained">
@@ -346,6 +389,9 @@ function DashboardContent() {
           </Box>
         </Box>
       </ThemeProvider>
+      <DownloadUsersModal
+        isVisibleModalUsers={isVisibleModalUsers}
+        setIsVisibleModalUsers={setIsVisibleModalUsers} />
     </div>
   );
 }
