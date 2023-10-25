@@ -29,7 +29,9 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } 
 import moment from "moment";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 function Row(props) {
   const { row, refresh, verificado, financial } = props;
   const [open, setOpen] = React.useState(false);
@@ -147,7 +149,10 @@ function Row(props) {
           }}
           align="center"
         >
-          {row.isAvailabilityTx.BOOL == true ? "APROBADO" : "RECHAZADO"}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {row.identificationNumber && row.country ? <CheckCircleOutlineIcon color="primary" /> : <HighlightOffIcon color="primary"/>}
+            {row.isAvailabilityTx.BOOL == true ? "APROBADO" : "RECHAZADO"}
+          </div>
         </TableCell>
         <TableCell>
           <IconButton
@@ -194,7 +199,7 @@ function Row(props) {
                         variant="circular" sx={{ display: "flex" }} onClick={async () => {
                           setEditingName(false)
                           setLoading(true);
-                          row.fullName.S = getterName+"";
+                          row.fullName.S = getterName + "";
                           const request = {
                             RequestItems: {
                               ["MBUser-oqkpjuho2ngvbonruy7shv26zu-pre"]: [
@@ -593,7 +598,7 @@ function Row(props) {
                       }}
                       disabled={row.isAvailabilityTx.BOOL}
                       variant="contained"
-                      endIcon={loading ? <PendingTwoToneIcon /> :<VerifiedUserTwoToneIcon />}
+                      endIcon={loading ? <PendingTwoToneIcon /> : <VerifiedUserTwoToneIcon />}
                       onClick={async () => {
                         setLoading(true);
                         row.isAvailabilityTx.BOOL = true;
@@ -622,11 +627,11 @@ function Row(props) {
                           "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
                           {
                             type: "emailing",
-                            template_name: "WELCOME_EMAIL_APPROVAL_"+row.alpha3Code.S,
+                            template_name: "WELCOME_EMAIL_APPROVAL_" + row.alpha3Code.S,
                             substitutions: {
                               name: row.nickname.S
                             },
-                            receiver: row.email.S 
+                            receiver: row.email.S
                           }
                         );
                         refresh();
@@ -643,7 +648,7 @@ function Row(props) {
                       }}
                       disabled={!row.isAvailabilityTx.BOOL}
                       variant="contained"
-                      endIcon={loading ? <PendingTwoToneIcon /> :<GppBadTwoToneIcon />}
+                      endIcon={loading ? <PendingTwoToneIcon /> : <GppBadTwoToneIcon />}
                       onClick={async () => {
                         setLoading(true);
                         row.isAvailabilityTx.BOOL = false;
@@ -688,7 +693,7 @@ function Row(props) {
 }
 
 export default function UsersTable(props) {
-  const { users, filtro, busqueda, verified, financial } = props;
+  const { users, filtro, busqueda, verified, financial, aprobados, rechazados, view, startDate, endDate } = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [key, setKey] = React.useState(1);
@@ -698,8 +703,9 @@ export default function UsersTable(props) {
   React.useEffect(() => {
     if (busqueda.length >= 2 && users.length > 0) {
       handleChangePage(null, 0)
-      refreshTable();
+      
     }
+    refreshTable();
   }, [busqueda]);
   const handleChangePage = (event, newPage) => {
     refreshTable();
@@ -710,14 +716,37 @@ export default function UsersTable(props) {
     refreshTable();
     setPage(0);
     setRowsPerPage(+event.target.value);
-    
+
   };
   const rows = [];
+  let rowsEnviar;
+
   if (filtro.length != 0) {
-    rows.push(...filtro);
+    if(aprobados || rechazados){
+      const disponibles = filtro.filter(user => user.isAvailabilityTx.BOOL == (aprobados ? aprobados : false))
+      rowsEnviar = disponibles;
+    }else{
+      rowsEnviar = filtro
+    }
+    
   } else if (busqueda == "") {
-    rows.push(...users);
+    if(aprobados || rechazados){
+      const disponibles = users.filter(user => user.isAvailabilityTx.BOOL == (aprobados ? aprobados : false))
+      rowsEnviar = disponibles
+    }else{
+      rowsEnviar = users
+    }
   }
+  if(rowsEnviar && view.length != 0){
+    rowsEnviar = rowsEnviar.filter(user => user.alpha3Code.S === view && user.identificationNumber)
+
+  }
+  if(rowsEnviar){
+    rowsEnviar = rowsEnviar.filter(user => moment(user.createdAt.S).toDate() <= endDate &&  moment(user.createdAt.S).toDate() >= startDate)
+    rows.push(...rowsEnviar)
+    
+  }
+  
   const nadaEventoRefesco = () => {
 
   }

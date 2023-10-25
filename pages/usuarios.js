@@ -25,6 +25,12 @@ import styles from '../styles/Home.module.css';
 import Button from '@mui/material/Button';
 import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
 import moment from 'moment';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -104,12 +110,19 @@ function DashboardContent() {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const today = new Date();
+  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1)
   const [usuarios, setUsuarios] = React.useState([]);
   const [verificados, setVerificados] = React.useState([]);
   const [financialData, setFinancialData] = React.useState([])
   const [filtro, setFiltered] = React.useState([])
   const [buscador, setBuscador] = React.useState("");
   const [isLoading, setLoading] = React.useState(false)
+  const [aprobados, setAprobados] = React.useState(false)
+  const [rechazados, setRechazados] = React.useState(false)
+  const [startDate, setStartDate] = React.useState(new Date(today.getFullYear() - 1, today.getMonth(), today.getDate()))
+  const [endDate, setEndDate] = React.useState(now)
+  const [view, setView] = React.useState("")
   React.useEffect(() => {
 
 
@@ -117,40 +130,63 @@ function DashboardContent() {
 
   }, [])
   const consulta = async () => {
-    setLoading(true)
-    const financialResponse = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-      type: "scan",
-      tableName: "MBFinancialData-oqkpjuho2ngvbonruy7shv26zu-pre",
-    });
-    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-    setFinancialData(financialResponse.data.code.information)
-    
-    const response = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-      type: "scan",
-      tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
-    });
-    let arrayUsuarios = response.data.code.information;
-    arrayUsuarios.sort((a,b) => moment(b.createdAt.S).toDate() - moment(a.createdAt.S).toDate())
-    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-    setUsuarios(arrayUsuarios)
+    setLoading(true);
 
-    const respuesta = await axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
-      type: "scan",
-      tableName: "MBUserVerified-oqkpjuho2ngvbonruy7shv26zu-pre",
-    });
+    const requests = [
+      axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBFinancialData-oqkpjuho2ngvbonruy7shv26zu-pre",
+      }),
+      axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+      }),
+      axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        type: "scan",
+        tableName: "MBUserVerified-oqkpjuho2ngvbonruy7shv26zu-pre",
+      })
+    ];
 
-    // Si la solicitud es exitosa, imprimimos la respuesta del servidor
-    setVerificados(respuesta.data.code.information)
+    try {
+      const [financialResponse, response, respuesta] = await Promise.all(requests);
+
+      setFinancialData(financialResponse.data.code.information);
+
+      let arrayUsuarios = response.data.code.information;
+      arrayUsuarios.sort((a, b) => moment(b.createdAt.S).toDate() - moment(a.createdAt.S).toDate());
+      setUsuarios(arrayUsuarios);
+
+      setVerificados(respuesta.data.code.information);
+    } catch (error) {
+      console.error(error);  // Agrega manejo de errores, por ejemplo, mostrar un mensaje al usuario.
+    }
+
+    setLoading(false);
+  };
 
 
-    setLoading(false)
+  const filtrarAprobados = async () => {
+    if (rechazados) setRechazados(prevRechazados => !prevRechazados);
+    setAprobados(prevAprobados => !prevAprobados);
+
   }
+  const filtrarRechazados = async () => {
+    if (aprobados) setAprobados(prevAprobados => !prevAprobados);
+    setRechazados(prevRechazados => !prevRechazados);
+  }
+
+  const reestablecer = async () => {
+    setRechazados(false)
+    setAprobados(false)
+    setView("")
+  }
+
   React.useEffect(() => {
-    if(buscador.includes(" ")){
-      setFiltered(usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase()) ))
+    if (buscador.includes(" ")) {
+      setFiltered(usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase())))
       return;
     }
-    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b'+buscador.toLowerCase()+"\\b").test(user.fullName.S.toLowerCase())))
+    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b' + buscador.toLowerCase() + "\\b").test(user.fullName.S.toLowerCase())))
   }, [buscador])
 
   return (
@@ -249,9 +285,43 @@ function DashboardContent() {
                         }}
                         style={{ left: 10 }}
                       />
-                      <Button style={{ left: 25 }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
+                      <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                         Refrescar
                       </Button>
+                      <Button style={{ left: 25 * 2, backgroundColor: "gold" }} onClick={filtrarAprobados} disabled={aprobados} variant="contained">
+                        Aprobados
+                      </Button>
+                      <Button style={{ left: 25 * 3, backgroundColor: "magenta" }} onClick={filtrarRechazados} disabled={rechazados} variant="contained">
+                        Rechazados
+                      </Button>
+                      <FormControl style={{ left: 25 * 4, width: 100 }}>
+                        <InputLabel id="demo-simple-select-label">País</InputLabel>
+                        <Select
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={view}
+                          label="País"
+                          onChange={(e) => {
+                            setView(e.target.value);
+                          }}
+                        >
+                          <MenuItem value={"USA"}>USA</MenuItem>
+                          <MenuItem value={"ECU"}>ECU</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <div style={{ paddingLeft: 25 * 5 }}>
+                        <p>Fecha Inicio</p>
+                        <DatePicker selected={startDate} onChange={(date) => {setStartDate(date)}} />
+                      </div>
+                      <div style={{ paddingLeft: 25  }}>
+                        <p>Fecha Fin</p>
+                        <DatePicker selected={endDate} onChange={(date) => {setEndDate(date)}} />
+                      </div>
+
+                      {aprobados || rechazados || view.length != 0 ?
+                        <Button style={{ left: 25 * 7, backgroundColor: "black" }} onClick={reestablecer} variant="contained">
+                          Reestablecer
+                        </Button> : null}
                     </div>
                     <p></p>
                   </Paper>
@@ -267,7 +337,7 @@ function DashboardContent() {
                       width: "100%"
                     }}
                   >
-                    <UsersTable financial={financialData} verified={verificados} busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbuser" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbuser" || user.role == undefined)} />
+                    <UsersTable financial={financialData} verified={verificados} busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbuser" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbuser" || user.role == undefined)} aprobados={aprobados} rechazados={rechazados} view={view} startDate={startDate} endDate={endDate} />
                   </Paper>
                 </Grid>
               </Grid>
