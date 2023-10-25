@@ -12,6 +12,7 @@
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.2",
     "@mui/styled-engine-sc": "^5.11.0",
+    "antd": "^5.10.2",
     "axios": "^1.2.1",
     "moment": "^2.29.4",
     "next": "latest",
