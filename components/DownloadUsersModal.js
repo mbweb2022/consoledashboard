@@ -1,4 +1,5 @@
 import { Modal, Space, DatePicker, Select, Tag } from "antd"
+import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 const { RangePicker } = DatePicker;
@@ -8,6 +9,9 @@ export const DownloadUsersModal = ({ isVisibleModalUsers, setIsVisibleModalUsers
     const [filterValue, setFilterValue] = useState(["ALL"])
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [isNotValidForm, setIsNotValidForm] = useState(true)
+    const [okText, setOkText] = useState("Generar archivo")
+    const [fileUrl, setFileUrl] = useState("")
+
     const [filterOptions] = useState([
         {
             value: "ALL",
@@ -32,11 +36,17 @@ export const DownloadUsersModal = ({ isVisibleModalUsers, setIsVisibleModalUsers
         setRangeDate(loadInitDate())
     }, [])
     useEffect(() => {
+        if (confirmLoading) {
+            setOkText("Generando")
+        }
+    }, [confirmLoading])
+    useEffect(() => {
         if (filterValue.length > 0 && rangeDate[0] && rangeDate[1]) {
             setIsNotValidForm(false)
         } else {
             setIsNotValidForm(true)
         }
+        setOkText("Generar archivo")
     }, [rangeDate, filterValue])
     const loadInitDate = () => {
         try {
@@ -48,6 +58,7 @@ export const DownloadUsersModal = ({ isVisibleModalUsers, setIsVisibleModalUsers
         }
     }
     const handleChangeDate = (values) => {
+        setOkText("Generar archivo")
         try {
             let rangeTmp = rangeDate
             if (values && values[0]) {
@@ -70,24 +81,36 @@ export const DownloadUsersModal = ({ isVisibleModalUsers, setIsVisibleModalUsers
         }
     };
     const onDownloadUserFile = async () => {
-        setConfirmLoading(true);
-        const response = await axios.post(
-            "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
-            {
-                type: "LIST_USERS_DOWNLOAD",
-                pathNames: [row.name],
-            }
-        );
-        console.log("response fronm", response.data)
-        setConfirmLoading(false);
+        try {
+            setConfirmLoading(true);
+            const response = await axios.post(
+                "https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production",
+                {
+                    type: "LIST_USERS_DOWNLOAD",
+                    startDate: rangeDate[0].toISOString().split("T")[0],
+                    endDate: rangeDate[1].toISOString().split("T")[0],
+                    filterBy: filterValue
+
+                }
+            );
+            setFileUrl(response.data.fileUrl)
+            setOkText("Descargar")
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setConfirmLoading(false);
+        }
+
 
     }
     return <Modal
         title="Descargar usuarios"
         open={isVisibleModalUsers}
-        okText="Descargar"
+        okText={okText}
         cancelText="Cancelar"
-        onOk={onDownloadUserFile}
+        onOk={okText == "Descargar" ? () => {
+            window.open(fileUrl, "_blank");
+        } : onDownloadUserFile}
         confirmLoading={confirmLoading}
         cancelButtonProps={{ disabled: confirmLoading }}
         okButtonProps={{ disabled: isNotValidForm }}
@@ -113,5 +136,5 @@ export const DownloadUsersModal = ({ isVisibleModalUsers, setIsVisibleModalUsers
             />
 
         </Space>
-    </Modal>
+    </Modal >
 }
