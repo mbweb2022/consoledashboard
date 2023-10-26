@@ -30,10 +30,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { Select as SelectAnt } from 'antd';
+import { Select as SelectAnt, DatePicker as DatePickerAnt } from 'antd';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { DownloadUsersModal } from '../components/DownloadUsersModal';
+import dayjs from 'dayjs';
+const { RangePicker } = DatePickerAnt;
 export const getServerSideProps = async ({ res }) => {
   if (typeof window === 'undefined') {
     res.writeHead(301, {
@@ -125,6 +127,9 @@ function DashboardContent() {
   const [rechazados, setRechazados] = React.useState(false)
   const [startDate, setStartDate] = React.useState(new Date(today.getFullYear() - 1, today.getMonth(), today.getDate()))
   const [endDate, setEndDate] = React.useState(now)
+  const [rangeDate, setRangeDate] = React.useState([null, null])
+  const [selectValue, setSelectValue] = React.useState("NONE")
+
   const [view, setView] = React.useState("")
   const [isVisibleModalUsers, setIsVisibleModalUsers] = React.useState(false)
   const [filterOptions] = React.useState([
@@ -145,14 +150,14 @@ function DashboardContent() {
     }, {
       value: "ECU",
       label: "Ecuador"
+    }, {
+      value: "DATE",
+      label: "Fecha"
     }
   ])
 
   React.useEffect(() => {
-
-
-    //consulta();
-
+    consulta();
   }, [])
   const consulta = async () => {
     setLoading(true);
@@ -176,8 +181,13 @@ function DashboardContent() {
       const [financialResponse, response, respuesta] = await Promise.all(requests);
 
       setFinancialData(financialResponse.data.code.information);
-
-      let arrayUsuarios = response.data.code.information;
+      let arrayUsuarios = [];
+      for (const user of response.data.code.information) {
+        if ((user?.role?.S == "mbuser" || !user?.role) && (user?.isDeleted?.S == false || !user?.isDeleted)) {
+          arrayUsuarios.push(user)
+        }
+      }
+      console.log("usuarios filtrados ", arrayUsuarios.length)
       arrayUsuarios.sort((a, b) => moment(b.createdAt.S).toDate() - moment(a.createdAt.S).toDate());
       setUsuarios(arrayUsuarios);
 
@@ -207,15 +217,65 @@ function DashboardContent() {
   }
 
   React.useEffect(() => {
-    if (buscador.includes(" ")) {
-      setFiltered(usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase())))
-      return;
+    if (buscador.length > 2) {
+      if (buscador.includes(" ")) {
+        setFiltered(Object.assign([], usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase()))))
+        return;
+      }
+      setFiltered(Object.assign([], usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b' + buscador.toLowerCase() + "\\b").test(user.fullName.S.toLowerCase()))))
+    }else{
+      reestablecer()
+      setFiltered([])
+      setSelectValue("NONE")
+      setRangeDate(Object.assign([], [null, null]))
+      //handleSelectChange("NONE")
     }
-    setFiltered(usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b' + buscador.toLowerCase() + "\\b").test(user.fullName.S.toLowerCase())))
+   
   }, [buscador])
   const handleSelectChange = (value) => {
+    if (value == "APPROVED") {
+      filtrarAprobados()
+      setRechazados(false)
+      setView("")
+    } else if (value == "DENIED") {
+      filtrarRechazados()
+      setAprobados(false)
+      setView("")
+    } else if (value == "USA") {
+      setView("USA");
+      setRechazados(false)
+      setAprobados(false)
+    } else if (value == "ECU") {
+      setView("ECU");
+      setRechazados(false)
+      setAprobados(false)
+    } else {
+      reestablecer()
+      setFiltered([])
+      setRangeDate(Object.assign([], [null, null]))
+
+    }
+    setSelectValue(value)
+    setBuscador("")
     console.log(`Selected: ${value}`);
   };
+  const handleChangeDate = (values) => {
+    try {
+      let rangeTmp = rangeDate
+      if (values && values[0]) {
+        rangeTmp[0] = dayjs(values[0].toISOString().split("T")[0], 'YYYY-MM-DD')
+      }
+      if (values && values[1]) {
+        rangeTmp[1] = dayjs(values[1].toISOString().split("T")[0], 'YYYY-MM-DD')
+      }
+      setRangeDate(Object.assign([], rangeTmp))
+      setSelectValue("DATE")
+    } catch (e) {
+      setSelectValue("NONE")
+      setRangeDate(Object.assign([], [null, null]))
+      console.log("error", e)
+    }
+  }
   return (
     <div className={isLoading ? null : null}>
       <ThemeProvider theme={mdTheme}>
@@ -308,9 +368,11 @@ function DashboardContent() {
                         required
                         label={isLoading ? "" : "Buscar por nombre"}
                         onChange={(event) => {
-                          setBuscador(event.target.value)
+                          console.log("event.target.value",event.target.value)
+                          setBuscador(event.target.value+"")
                         }}
                         style={{ left: 10, }}
+                        value={buscador}
                       />
                       <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                         Refrescar
@@ -323,11 +385,18 @@ function DashboardContent() {
                           size={"large"}
                           defaultValue="NONE"
                           onChange={handleSelectChange}
-                          style={{  left: 40 }}
+                          style={{ left: 40, width: 175 }}
                           options={filterOptions}
+                          value={selectValue}
                         />
                       </div>
-
+                      <RangePicker
+                        onCalendarChange={handleChangeDate}
+                        style={{
+                          left: 50
+                        }}
+                        value={rangeDate}
+                      />
                       {/* <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                         Refrescar
                       </Button>
@@ -361,10 +430,10 @@ function DashboardContent() {
                         <DatePicker selected={endDate} onChange={(date) => { setEndDate(date) }} />
                       </div> */}
 
-                      {aprobados || rechazados || view.length != 0 ?
+                      {/* {aprobados || rechazados || view.length != 0 ?
                         <Button style={{ left: 25 * 7, backgroundColor: "black" }} onClick={reestablecer} variant="contained">
                           Reestablecer
-                        </Button> : null}
+                        </Button> : null} */}
                     </div>
                     <p></p>
                   </Paper>
@@ -380,7 +449,7 @@ function DashboardContent() {
                       width: "100%"
                     }}
                   >
-                    <UsersTable financial={financialData} verified={verificados} busqueda={buscador} users={usuarios.filter(user => user.role.S == "mbuser" || user.role == undefined)} filtro={filtro.filter(user => user.role.S == "mbuser" || user.role == undefined)} aprobados={aprobados} rechazados={rechazados} view={view} startDate={startDate} endDate={endDate} />
+                    <UsersTable rangeDate={rangeDate} financial={financialData} verified={verificados} busqueda={buscador} users={usuarios} filtro={filtro} aprobados={aprobados} rechazados={rechazados} view={view} startDate={startDate} endDate={endDate} />
                   </Paper>
                 </Grid>
               </Grid>

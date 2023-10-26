@@ -32,6 +32,7 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import dayjs from "dayjs";
 function Row(props) {
   const { row, refresh, verificado, financial } = props;
   const [open, setOpen] = React.useState(false);
@@ -150,7 +151,7 @@ function Row(props) {
           align="center"
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {row.identificationNumber && row.country ? <CheckCircleOutlineIcon color="primary" /> : <HighlightOffIcon color="primary"/>}
+            {row.identificationNumber && row.country ? <CheckCircleOutlineIcon color="primary" /> : <HighlightOffIcon color="primary" />}
             {row.isAvailabilityTx.BOOL == true ? "APROBADO" : "RECHAZADO"}
           </div>
         </TableCell>
@@ -693,20 +694,36 @@ function Row(props) {
 }
 
 export default function UsersTable(props) {
-  const { users, filtro, busqueda, verified, financial, aprobados, rechazados, view, startDate, endDate } = props;
+  const { users, rangeDate, filtro, busqueda, verified, financial, aprobados, rechazados, view, startDate, endDate } = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [key, setKey] = React.useState(1);
+  // const [rowsEnviar, setRowsEnviar] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
+
+
   const refreshTable = () => {
     setKey(key + 1);
   };
   React.useEffect(() => {
     if (busqueda.length >= 2 && users.length > 0) {
       handleChangePage(null, 0)
-      
+
     }
     refreshTable();
   }, [busqueda]);
+  React.useEffect(() => {
+    console.log("busancdo por fechas", rangeDate)
+    if (rangeDate[0] && rangeDate[1]) {
+      setRows(Object.assign([], users.filter((user) => dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isAfter(rangeDate[0]) && dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isBefore(rangeDate[1]))))
+    } else {
+      setRows(Object.assign([], users))
+    }
+  }, [rangeDate]);
+  React.useEffect(() => {
+    handleInitTable()
+  }, [users, filtro, aprobados, rechazados, view]);
+
   const handleChangePage = (event, newPage) => {
     refreshTable();
     setPage(newPage);
@@ -718,35 +735,24 @@ export default function UsersTable(props) {
     setRowsPerPage(+event.target.value);
 
   };
-  const rows = [];
-  let rowsEnviar;
-
-  if (filtro.length != 0) {
-    if(aprobados || rechazados){
-      const disponibles = filtro.filter(user => user.isAvailabilityTx.BOOL == (aprobados ? aprobados : false))
-      rowsEnviar = disponibles;
-    }else{
-      rowsEnviar = filtro
-    }
-    
-  } else if (busqueda == "") {
-    if(aprobados || rechazados){
+  const handleInitTable = () => {
+    let rowsEnviar = users;
+    if (aprobados || rechazados) {
       const disponibles = users.filter(user => user.isAvailabilityTx.BOOL == (aprobados ? aprobados : false))
       rowsEnviar = disponibles
-    }else{
-      rowsEnviar = users
     }
+    if (view == "USA") {
+      rowsEnviar = rowsEnviar.filter(user => user?.phoneNumber?.S?.startsWith("+1"))
+    } else if (view == "ECU") {
+      rowsEnviar = rowsEnviar.filter(user => user?.phoneNumber?.S?.startsWith("+593"))
+    }
+    if (filtro.length > 0) {
+      rowsEnviar = filtro
+    }
+    setRows(Object.assign([], rowsEnviar))
   }
-  if(rowsEnviar && view.length != 0){
-    rowsEnviar = rowsEnviar.filter(user => user.alpha3Code.S === view && user.identificationNumber)
 
-  }
-  if(rowsEnviar){
-    rowsEnviar = rowsEnviar.filter(user => moment(user.createdAt.S).toDate() <= endDate &&  moment(user.createdAt.S).toDate() >= startDate)
-    rows.push(...rowsEnviar)
-    
-  }
-  
+
   const nadaEventoRefesco = () => {
 
   }
@@ -768,12 +774,9 @@ export default function UsersTable(props) {
           <TableBody>
             {rows.length != 0 ? (
               rows
-                .filter(element => element.isDeleted === undefined)
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   const verificacion = verified.filter(verificado => row.id.S == verificado.userID.S)
-                  console.log("PASANDO USUARIO")
-                  console.log(row)
                   return (
                     <Row
                       key={row.nickname.S}
