@@ -712,17 +712,17 @@ export default function UsersTable(props) {
     }
     refreshTable();
   }, [busqueda]);
-  React.useEffect(() => {
-    console.log("busancdo por fechas", rangeDate)
-    if (rangeDate[0] && rangeDate[1]) {
-      setRows(Object.assign([], users.filter((user) => dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isAfter(rangeDate[0]) && dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isBefore(rangeDate[1]))))
-    } else {
-      setRows(Object.assign([], users))
-    }
-  }, [rangeDate]);
+  // React.useEffect(() => {
+  //   console.log("busancdo por fechas", rangeDate)
+  //   if (rangeDate[0] && rangeDate[1]) {
+  //     setRows(Object.assign([], users.filter((user) => dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isAfter(rangeDate[0]) && dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD').isBefore(rangeDate[1]))))
+  //   } else {
+  //     setRows(Object.assign([], users))
+  //   }
+  // }, [rangeDate]);
   React.useEffect(() => {
     handleInitTable()
-  }, [users, filtro, aprobados, rechazados, view]);
+  }, [users, filtro, aprobados, rechazados, view, rangeDate]);
 
   const handleChangePage = (event, newPage) => {
     refreshTable();
@@ -736,20 +736,44 @@ export default function UsersTable(props) {
 
   };
   const handleInitTable = () => {
-    let rowsEnviar = users;
-    if (aprobados || rechazados) {
-      const disponibles = users.filter(user => user.isAvailabilityTx.BOOL == (aprobados ? aprobados : false))
-      rowsEnviar = disponibles
-    }
-    if (view == "USA") {
-      rowsEnviar = rowsEnviar.filter(user => user?.phoneNumber?.S?.startsWith("+1"))
-    } else if (view == "ECU") {
-      rowsEnviar = rowsEnviar.filter(user => user?.phoneNumber?.S?.startsWith("+593"))
-    }
     if (filtro.length > 0) {
-      rowsEnviar = filtro
+      setRows(Object.assign([], filtro))
+      return
     }
-    setRows(Object.assign([], rowsEnviar))
+    let rowsFiltered = [];
+    if (view == "NONE") {
+      rowsFiltered = users
+    } else if (view == "ALL" || !view) {
+      if (aprobados) {
+        const approved = users.filter(user => user.isAvailabilityTx.BOOL == true)
+        rowsFiltered = rowsFiltered.concat(approved)
+      }
+      if (rechazados) {
+        const rejected = users.filter(user => user.isAvailabilityTx.BOOL == false)
+        rowsFiltered = rowsFiltered.concat(rejected)
+      }
+    } else if (view) {
+      const regionUsers = users.filter(user => user?.phoneNumber?.S?.startsWith(view == "ECU" ? "+593" : "+1"))
+      if (aprobados) {
+        const approved = regionUsers.filter(user => user.isAvailabilityTx.BOOL == true)
+        rowsFiltered = rowsFiltered.concat(approved)
+      }
+      if (rechazados) {
+        const rejected = regionUsers.filter(user => user.isAvailabilityTx.BOOL == false)
+        rowsFiltered = rowsFiltered.concat(rejected)
+      }
+      if (!aprobados && !rechazados) {
+        rowsFiltered = regionUsers
+      }
+    }
+
+    if (rangeDate[0] && rangeDate[1]) {
+      rowsFiltered = rowsFiltered.filter((user) => dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD')
+        .isAfter(dayjs(rangeDate[0].toISOString().split("T")[0]))
+        && dayjs(user.createdAt.S.split("T")[0], 'YYYY-MM-DD')
+          .isBefore(dayjs(rangeDate[1].toISOString().split("T")[0])))
+    }
+    setRows(Object.assign([], rowsFiltered))
   }
 
 

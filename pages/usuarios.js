@@ -129,6 +129,7 @@ function DashboardContent() {
   const [endDate, setEndDate] = React.useState(now)
   const [rangeDate, setRangeDate] = React.useState([null, null])
   const [selectValue, setSelectValue] = React.useState("NONE")
+  const [modeSelect, setModeSelect] = React.useState("none")
 
   const [view, setView] = React.useState("")
   const [isVisibleModalUsers, setIsVisibleModalUsers] = React.useState(false)
@@ -201,63 +202,63 @@ function DashboardContent() {
 
 
   const filtrarAprobados = async () => {
-    if (rechazados) setRechazados(prevRechazados => !prevRechazados);
+    // if (rechazados) setRechazados(prevRechazados => !prevRechazados);
     setAprobados(prevAprobados => !prevAprobados);
 
   }
   const filtrarRechazados = async () => {
-    if (aprobados) setAprobados(prevAprobados => !prevAprobados);
+    //  if (aprobados) setAprobados(prevAprobados => !prevAprobados);
     setRechazados(prevRechazados => !prevRechazados);
   }
 
   const reestablecer = async () => {
     setRechazados(false)
     setAprobados(false)
-    setView("")
+    setView("NONE")
   }
 
   React.useEffect(() => {
+    reestablecer()
+    setFiltered([])
+    setSelectValue("NONE")
+    setRangeDate(Object.assign([], [null, null]))
     if (buscador.length > 2) {
       if (buscador.includes(" ")) {
         setFiltered(Object.assign([], usuarios.filter(user => user.fullName.S.toLowerCase().includes(buscador.toLowerCase()))))
         return;
       }
       setFiltered(Object.assign([], usuarios.filter(user => user.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || user.fullName.S.split(" ").some(str => str.toLowerCase().includes(buscador.toLowerCase())) || new RegExp('\\b' + buscador.toLowerCase() + "\\b").test(user.fullName.S.toLowerCase()))))
-    }else{
-      reestablecer()
-      setFiltered([])
-      setSelectValue("NONE")
-      setRangeDate(Object.assign([], [null, null]))
-      //handleSelectChange("NONE")
     }
-   
+
   }, [buscador])
   const handleSelectChange = (value) => {
-    if (value == "APPROVED") {
-      filtrarAprobados()
-      setRechazados(false)
-      setView("")
-    } else if (value == "DENIED") {
-      filtrarRechazados()
-      setAprobados(false)
-      setView("")
-    } else if (value == "USA") {
-      setView("USA");
-      setRechazados(false)
-      setAprobados(false)
-    } else if (value == "ECU") {
-      setView("ECU");
-      setRechazados(false)
-      setAprobados(false)
-    } else {
+    // setSelectValue(value)
+    setBuscador("")
+    if (value == "NONE" || value?.includes("NONE") || (Array.isArray(value) && value.length <= 0)) {
+      setSelectValue("NONE")
+      setTimeout(() => { setModeSelect("none") }, 500)
       reestablecer()
       setFiltered([])
       setRangeDate(Object.assign([], [null, null]))
-
+      return
+    } else {
+      setTimeout(() => { setModeSelect("multiple") }, 500)
+    }
+    setAprobados(value.includes("APPROVED"))
+    setRechazados(value.includes("DENIED"))
+    if (!value.includes("DATE")) {
+      setRangeDate(Object.assign([], [null, null]))
+    }
+    if (value.includes("ECU") && value.includes("USA")) {
+      setView("ALL")
+    } else if (value.includes("ECU") && !value.includes("USA")) {
+      setView("ECU")
+    } else if (!value.includes("ECU") && value.includes("USA")) {
+      setView("USA")
+    } else {
+      setView("")
     }
     setSelectValue(value)
-    setBuscador("")
-    console.log(`Selected: ${value}`);
   };
   const handleChangeDate = (values) => {
     try {
@@ -269,9 +270,21 @@ function DashboardContent() {
         rangeTmp[1] = dayjs(values[1].toISOString().split("T")[0], 'YYYY-MM-DD')
       }
       setRangeDate(Object.assign([], rangeTmp))
-      setSelectValue("DATE")
+      if (Array.isArray(selectValue) && selectValue.includes("NONE")) {
+        setSelectValue(Object.assign([], selectValue.filter(item => item != "NONE").concat("DATE")))
+      } else if (typeof selectValue == "string") {
+        if (selectValue == "NONE") {
+          setSelectValue(Object.assign([], ["DATE"]))
+        } else {
+          setSelectValue(Object.assign([], [selectValue, "DATE"]))
+
+        }
+      }
+      setBuscador("")
     } catch (e) {
-      setSelectValue("NONE")
+      // setSelectValue([...selectValue, "DATE"])
+      //setSelectValue(selectValue.filter(item=>item!=))
+      //setSelectValue("NONE")
       setRangeDate(Object.assign([], [null, null]))
       console.log("error", e)
     }
@@ -368,8 +381,8 @@ function DashboardContent() {
                         required
                         label={isLoading ? "" : "Buscar por nombre"}
                         onChange={(event) => {
-                          console.log("event.target.value",event.target.value)
-                          setBuscador(event.target.value+"")
+                          console.log("event.target.value", event.target.value)
+                          setBuscador(event.target.value + "")
                         }}
                         style={{ left: 10, }}
                         value={buscador}
@@ -383,6 +396,7 @@ function DashboardContent() {
                       <div >
                         <SelectAnt
                           size={"large"}
+                          mode={modeSelect}
                           defaultValue="NONE"
                           onChange={handleSelectChange}
                           style={{ left: 40, width: 175 }}
@@ -396,6 +410,7 @@ function DashboardContent() {
                           left: 50
                         }}
                         value={rangeDate}
+                        defaultValue={dayjs(new Date().toISOString().split("T")[0], 'YYYY-MM-DD')}
                       />
                       {/* <Button style={{ left: 25, }} onClick={consulta} variant="contained" endIcon={<SyncTwoToneIcon />}>
                         Refrescar
