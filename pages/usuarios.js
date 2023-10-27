@@ -270,8 +270,8 @@ function DashboardContent() {
         rangeTmp[1] = dayjs(values[1].toISOString().split("T")[0], 'YYYY-MM-DD')
       }
       setRangeDate(Object.assign([], rangeTmp))
-      if (Array.isArray(selectValue) && selectValue.includes("NONE")) {
-        setSelectValue(Object.assign([], selectValue.filter(item => item != "NONE").concat("DATE")))
+      if (Array.isArray(selectValue) && !selectValue.includes("DATE")) {
+        setSelectValue(Object.assign([], selectValue.filter(item => item != "NONE").concat(["DATE"])))
       } else if (typeof selectValue == "string") {
         if (selectValue == "NONE") {
           setSelectValue(Object.assign([], ["DATE"]))
