@@ -173,11 +173,14 @@ function DashboardContent() {
         const shipping = usuarios.filter(user => user.id.S === element.shippingID.S)[0]
         if (element.codeID) {
           const receipt = usuarios.filter(user => user.id.S === element.receiptID.S)[0]
-          if (shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU") {
-            fromUSAToECU.push(element)
-          } else if (shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA") {
-            fromECUToUSA.push(element)
+          if(shipping.alpha3Code && receipt.alpha3Code){
+            if (shipping.alpha3Code.S === "USA" && receipt.alpha3Code.S === "ECU") {
+              fromUSAToECU.push(element)
+            } else if (shipping.alpha3Code.S === "ECU" && receipt.alpha3Code.S === "USA") {
+              fromECUToUSA.push(element)
+            }
           }
+
         } else if (element.txType.S === "THIRD_ACCOUNTS" || element.txType.S === "OWN_ACCOUNTS") {
           const data = JSON.parse(element.txValues.S)
           const receipt = data.bankAccountToSend
