@@ -149,6 +149,9 @@ function DashboardContent() {
         }),
       ];
 
+
+
+      
       const [response, resultado, responseUsuarios] = await Promise.all(requests);
 
       const transacciones = response.data.code.information;
