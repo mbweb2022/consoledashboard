@@ -128,6 +128,8 @@ function DashboardContent() {
       console.log(JSON.parse(object))
       setLoading(true)
       setAdmin(JSON.parse(object))
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
       const requests = [
         axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "scan",
@@ -140,6 +142,10 @@ function DashboardContent() {
         axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "scan",
           tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
+          filterExpression: "createdAt >= :val",
+          expressionAttributeValues: {
+            ":val": { S: twoYearsAgo.toISOString() }
+          }
         }),
       ];
 
