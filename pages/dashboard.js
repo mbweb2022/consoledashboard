@@ -130,16 +130,22 @@ function DashboardContent() {
       setAdmin(JSON.parse(object))
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      const ThirthyDaysAgo = new Date();
+      ThirthyDaysAgo.setDate(ThirthyDaysAgo.getDate()-30)
       const requests = [
         axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "scan",
           tableName: "MBTransaction-oqkpjuho2ngvbonruy7shv26zu-pre",
+          filterExpression: "updatedAt >= :val",
+          expressionAttributeValues: {
+            ":val": { S: ThirthyDaysAgo.toISOString() }
+          }
         }),
         axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "scan",
           tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
         }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
+        axios.post('https://sy49h7a6d4.execute-api.us-east-1. amazonaws.com/production', {
           type: "scan",
           tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
           filterExpression: "createdAt >= :val",
@@ -151,7 +157,7 @@ function DashboardContent() {
 
 
 
-      
+
       const [response, resultado, responseUsuarios] = await Promise.all(requests);
 
       const transacciones = response.data.code.information;
