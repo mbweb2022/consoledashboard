@@ -145,7 +145,7 @@ function DashboardContent() {
           type: "scan",
           tableName: "MBCode-oqkpjuho2ngvbonruy7shv26zu-pre",
         }),
-        axios.post('https://sy49h7a6d4.execute-api.us-east-1. amazonaws.com/production', {
+        axios.post('https://sy49h7a6d4.execute-api.us-east-1.amazonaws.com/production', {
           type: "scan",
           tableName: "MBUser-oqkpjuho2ngvbonruy7shv26zu-pre",
           filterExpression: "createdAt >= :val",
