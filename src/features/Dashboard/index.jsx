@@ -33,7 +33,6 @@ function DashboardContent() {
                         <LastTxsCard resultado={resultado} navigate={navigate}/>
                     </> : null}
                     
-
                 </Grid>
 
             </Container>

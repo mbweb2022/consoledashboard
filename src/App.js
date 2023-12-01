@@ -5,6 +5,9 @@ import './App.css';
 import LoginIndex from "./features/Login"
 import TransaccionesIndex from "./features/Transacciones"
 import DashboardIndex from "./features/Dashboard"
+import UsuariosIndex from "./features/Usuarios"
+import TesoreriaIndex from './features/Tesoreria';
+import ArchivosIndex from "./features/Archivos"
 import { DashboardProvider } from './utils/contexts/DashboardContext';
 function App() {
   return (
@@ -21,6 +24,9 @@ function App() {
           <Route path="/home" element={<DashboardIndex />} />
           <Route path="/dashboard" element={<Navigate to="/home" />} />
           <Route path="/transacciones" element={<TransaccionesIndex />} />
+          <Route path="/usuarios" element={<UsuariosIndex />} />
+          <Route path="/tesoreria" element={<TesoreriaIndex />} />
+          <Route path="/archivos" element={<ArchivosIndex />} />
         </Routes>
       </DashboardProvider>
     </Router >

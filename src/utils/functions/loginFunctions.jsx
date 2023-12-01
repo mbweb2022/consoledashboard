@@ -42,7 +42,6 @@ export async function handleLogin(user, password, setUser, navigate) {
             return response;
 
         } else if (loginResponse.code.token) {
-            localStorage.setItem('ssTk-mb', loginResponse.code.token);
             const { data: userResponse } = await callBackend(Object.freeze({
                 type: "scan",
                 tableName: UsersTable,

@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { callBackend } from "../../services/BackendService";
-import { TransactionsCodesTable, TransactionsTable, UsersTable } from "../backendUtils.";
+import { FinancialDataTable, TransactionsCodesTable, TransactionsTable, UsersTable, UsersVerifiedTable } from "../backendUtils.";
 
 export function getDifference(date1, date2) {
     var Difference_In_Time = date2.getTime() - date1.getTime();
     var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
     return Difference_In_Days;
-  }
+}
 
-  export function useAuthenticationInit(loggedUser, navigate, handleAutomaticLogin){
-    async function initPage(){
+export function useAuthenticationInit(loggedUser, navigate, handleAutomaticLogin) {
+    async function initPage() {
         if (!loggedUser) {
             const token = localStorage.getItem('ssTk-mb');
             if (!await handleAutomaticLogin(token)) {
@@ -20,6 +20,31 @@ export function getDifference(date1, date2) {
     useEffect(() => {
         initPage();
     }, []);
+}
+
+export async function makeAllUsersInfoRequest() {
+    const parallelRequests = [
+         callBackend({
+            type: "scan",
+            tableName: UsersTable,
+        }),
+         callBackend({
+            type: "scan",
+            tableName: FinancialDataTable,
+        }),
+         callBackend({
+            type: "scan",
+            tableName: UsersVerifiedTable,
+        }),
+    ]
+    const [{ data: Users }, { data: FinancialData }, { data: UsersVerified }] = await Promise.all(parallelRequests);
+    return {
+        UsersVerified: UsersVerified.code.information,
+        FinancialData: FinancialData.code.information,
+        Users: Users.code.information,
+    }
+
+
 }
 
 export async function makeGeneralRequests(daysAgo) {

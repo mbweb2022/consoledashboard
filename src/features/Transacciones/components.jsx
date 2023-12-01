@@ -16,6 +16,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
 import moment from "moment";
+
+import { useInitializationDataProcess } from '../../utils/hooks/transaccionesHooks';
+
 export function SelectorCard(props) {
     const [buscador, setBuscador] = useState("")
     const [from, setFrom] = useState("");
@@ -31,40 +34,7 @@ export function SelectorCard(props) {
 
     }, [resultado])
 
-    React.useEffect(() => {
-        if (resultado != null || resultado != undefined) {
-            const original = resultado.transaccionesRecientes;
-            let toSend = [];
-            const usuarios = resultado.usersList;
-            original.forEach(element => {
-                const data = JSON.parse(element.txValues.S)
-                let receipt = data.bankAccountToSend
-                let gettedReceipt
-                if (element.receiptID) {
-                    gettedReceipt = usuarios.find(user => element.receiptID.S === user.id.S);
-                }
-
-                toSend.push({
-                    ...element,
-                    shipping: usuarios.find(user => element.shippingID.S === user.id.S),
-                    receipt: element.receiptID ? gettedReceipt ? gettedReceipt : { nickname: { S: "Desconocido" }, alpha3Code: { S: "????" } } : receipt,
-                })
-            })
-
-
-            if (buscador.length >= 3) {
-                toSend = toSend.filter(tx => (tx.shipping && (tx.shipping.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || tx.shipping.fullName.S.toLowerCase().includes(buscador.toLowerCase())) || (tx.receipt && ((tx.receipt.nickname && (tx.receipt.nickname.S.toLowerCase().includes(buscador.toLowerCase()) || tx.receipt.fullName.S.toLowerCase().includes(buscador.toLowerCase()))) || tx.receipt.name && tx.receipt.name.toLowerCase().includes(buscador.toLowerCase())))))
-            }
-            if (from.trim().length != 0) {
-                toSend = toSend.filter(tx => (tx.shipping && tx.shipping.alpha3Code.S === from.trim()))
-            }
-            setInformationList(toSend);
-        }
-
-
-
-
-    }, [resultado, buscador, from])
+    useInitializationDataProcess(resultado, buscador, from, setInformationList);
 
     return (
         <Grid item xs={12} md={5} lg={12}>

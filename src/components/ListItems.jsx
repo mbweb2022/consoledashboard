@@ -53,6 +53,15 @@ export const MainListItems = () => {
         </ListItemIcon>
         <ListItemText primary="Tesoreria" />
       </ListItemButton>
+      <ListItemButton
+        style={location.pathname === "archivos" ? { backgroundColor: "lightgray" } : {}}
+        onClick={() => navigate("/archivos")}
+      >
+        <ListItemIcon>
+          <LayersIcon />
+        </ListItemIcon>
+        <ListItemText primary="Archivos" />
+      </ListItemButton>
       {/* Continúa con los demás elementos de la lista, siguiendo el mismo patrón */}
       {/* ... */}
 
@@ -67,10 +76,10 @@ export const SecondaryListItems = () => {
   return (
     <React.Fragment>
       <ListSubheader component="div" inset>
-        Más funciones
+        {/* aqui puede ir texto xd */}
       </ListSubheader>
 
-      {/* Ejemplo para Corresponsales */}
+      {/* Ejemplo para Corresponsales 
       <ListItemButton
         style={location.pathname === "/corresponsales" ? { backgroundColor: "lightgray" } : {}}
         onClick={() => navigate("/corresponsales")}
@@ -81,7 +90,7 @@ export const SecondaryListItems = () => {
         <ListItemText primary="Corresponsales" />
       </ListItemButton>
 
-      {/* Continúa con los demás elementos de la lista, siguiendo el mismo patrón */}
+       Continúa con los demás elementos de la lista, siguiendo el mismo patrón */}
       {/* ... */}
 
     </React.Fragment>

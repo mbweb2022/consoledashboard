@@ -15,8 +15,8 @@ export const DashboardProvider = ({ children }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
   const [refreshState, setRefreshState] = useState(0);
 
-  function refresh(){
-      setRefreshState(refreshState+1);
+  function refresh() {
+    setRefreshState(refreshState + 1);
   }
 
   const handleAutomaticLogin = async (token) => {
@@ -25,12 +25,19 @@ export const DashboardProvider = ({ children }) => {
       token: token,
     })
     if (!information.error) {
-      setLoggedUser(JSON.parse(localStorage.getItem('ssTk-us')))
+      const user = localStorage.getItem('ssTk-us')
+      if(user== undefined || user == null){
+        return false;
+      }
+      setLoggedUser(JSON.parse(user))
+
       return true;
+    } else {
+      console.error(information.error)
     }
     return false;
   }
-  
+
   return (
     <DashboardContext.Provider value={{
       isLoading,
